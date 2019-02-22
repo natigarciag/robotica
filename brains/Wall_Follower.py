@@ -15,7 +15,7 @@ class Wall_Follower(Brain):
 		#elif self.robot.range[3].distance() > 0.5 and self.robot.range[4].distance() > 0.5:
 		#	return(1,0)
 		elif self.robot.range[7].distance() > 0.2 and self.robot.range[7].distance() < 0.25 and self.robot.range[6].distance() > 0.27 and self.robot.range[6].distance() < 0.32:
-			return(1, 0)
+			return(0.5, 0)
 		elif self.robot.range[7].distance() > 0.25 or self.robot.range[6].distance() > 0.32:
 			return(0.2,-.4)
 		elif self.robot.range[7].distance() < 0.2 or self.robot.range[6].distance() < 0.27:
