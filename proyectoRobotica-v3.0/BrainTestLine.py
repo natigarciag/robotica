@@ -18,18 +18,32 @@ class BrainTestNavigator(Brain):
     NO_ERROR = 0
     
     def setup(self):
+        self.prevDistance = 0.0
+        self.Ki = 0.0   
         pass
 
     def step(self):
         hasLine,lineDistance,searchRange = eval(self.robot.simulation[0].eval("self.getLineProperties()"))
         print "I got from the simulation",hasLine,lineDistance,searchRange
 
-        turnSpeed = lineDistance/searchRange
+        if (hasLine):
+            Kp = lineDistance
+            Kd = lineDistance - self.prevDistance
 
-        # The sharper the turn, the slower the robot advances forward
-        forwardVelocity = max(0,1-math.fabs(turnSpeed*1.5))
+            self.Ki = self.Ki + lineDistance
 
-        self.move(forwardVelocity,turnSpeed)
+            turnSpeed = lineDistance/searchRange
+
+            # The sharper the turn, the slower the robot advances forward
+            forwardVelocity = max(0,1-math.fabs(turnSpeed*1.5))
+
+            self.move(forwardVelocity,turnSpeed)
+
+        else:
+            # if we can't find the line we just go back, this isn't very smart (but definitely better than just stopping
+            self.move(-0.4,0)
+
+        self.prevDistance = lineDistance
         
 
         # if (hasLine):

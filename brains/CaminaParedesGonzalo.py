@@ -34,7 +34,7 @@ class Avoid(Brain):
 		translation, rotate = self.determineMove(front, left, right)  
 		self.robot.move(translation, rotate)
 
-	def INIT(engine):  
+def INIT(engine):  
 		assert (engine.robot.requires("range-sensor") and
 			engine.robot.requires("continuous-movement"))
 		return Avoid('Avoid', engine)  

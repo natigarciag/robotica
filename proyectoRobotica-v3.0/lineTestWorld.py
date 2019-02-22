@@ -30,6 +30,6 @@ def INIT():
     sim.robots[0].addDevice(PioneerFrontSonars())
 
     # to create a trail
-    # sim.robots[0].display["trail"] = 1
+    sim.robots[0].display["trail"] = 1
 
     return sim
