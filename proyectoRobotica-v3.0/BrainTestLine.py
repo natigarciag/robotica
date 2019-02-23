@@ -21,16 +21,26 @@ class BrainTestNavigator(Brain):
         self.prevDistance = 10.0
         self.Ki = 0.0   
         self.previousTurn = 0
-        # self.firstStep = True
-        self.state = 'followLine'
+        self.state = 'searchLine'
         self.searchLine = True
         self.prevDistanceToObstacle = 1.0
 
-        self.actionsForState = {
-            'approachLine': self.followLine,
-            'followLine': self.followLine,
-            'circleObjectOnRight': self.followObjectOnRight,
-            'leaveObjectOnRight': self.followLine
+        self.states = {
+            'searchLine': {
+                'action': self.followLine
+            },
+            'approachLine': {
+                'action': self.followLine
+            },
+            'followLine': {
+                'action': self.followLine
+            },
+            'circleObjectOnRight': {
+                'action': self.followObjectOnRight
+            },
+            'leaveObjectOnRight': {
+                'action': self.leaveObjectOnRight
+            }
         }
 
         pass
@@ -86,7 +96,6 @@ class BrainTestNavigator(Brain):
         Kd = Kd*10
         maxSpeed = 0.2
         x = max(0,min(1,math.fabs(Kd)))
-        print 'x',x
         rawForwardVelocity = parA*(x)**2 + parB*(x)
         forwardVelocity = max(min(rawForwardVelocity, maxSpeed),0)
 
@@ -96,28 +105,54 @@ class BrainTestNavigator(Brain):
         # print "vel:",rawForwardVelocity,"turn:",turnSpeed, "Kd:",Kd
         self.move(forwardVelocity,turnSpeed)
 
+    def leaveObjectOnRight(self,hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
+        self.move(0.3, 0.6)
+
     def transitionState(self, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
-        if (self.state is 'followLine' and (front < 0.7 or left < 0.1 or right < 0.1)):
-            if (left > right):
+        previousState = self.state
+        absDist = math.fabs(lineDistance)
+
+        if self.state is 'searchLine':
+            if hasLine:
+                self.state = 'followLine'
+
+        elif self.state is 'approachLine':
+            if (hasLine and absDist < 0.3):
+                self.state = 'followLine'
+            
+            if (front < 0.7 or left < 0.1 or right < 0.1):
                 self.state = 'circleObjectOnRight'
-            else:
-                self.state = 'objectOnLeft'
+                self.notFoundLineFor = 10
+
+        elif self.state is 'followLine':
+            if (front < 0.7 or left < 0.1 or right < 0.1):
+                self.state = 'circleObjectOnRight'
+                self.notFoundLineFor = 10
+
+        elif self.state is 'circleObjectOnRight':
+            if hasLine and self.searchLine is True and self.notFoundLineFor < 0:
+                self.state = 'leaveObjectOnRight'
+                self.searchLine = False
+                self.prevDistance = lineDistance
+            elif not hasLine:
+                self.searchLine = True
+                self.notFoundLineFor -= 1
+                # print 'not found for',self.notFoundLineFor
+            
+
+        elif self.state is 'leaveObjectOnRight':
+            if hasLine and absDist < 0.25:
+                self.state = 'approachLine'
+            self.printSummary(previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
+         
+
+        if previousState != self.state:
             print "new state:", self.state
-        elif (((self.state is 'circleObjectOnRight') or (self.state is 'circleObjectOnLeft')) and hasLine and self.searchLine is True):
-            self.state = 'approachLine'
-            self.searchLine = False
-            print "new state:", self.state
-            self.prevDistance = lineDistance
-        elif (((self.state is 'circleObjectOnRight') or (self.state is 'circleObjectOnLeft')) and not hasLine):
-            self.searchLine = True
-        elif self.state is 'approachLine' and hasLine and lineDistance < 0.7:
-            self.state = 'followLine'
-            print "new state:", self.state
-        # elif self.state is 'searchLine' and hasLine and lineDistance < 0.1 and self.searchLine is True:
-        #     self.move(0.1, -0.1)
-        #     print 'rotating for line'
-        #     self.searchLine = False
-        #     return
+            self.printSummary(previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
+            
+    def printSummary(self, previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
+        print "Data for new state decision is", previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right        
+    
 
     def step(self):
         hasLine,lineDistance,searchRange = eval(self.robot.simulation[0].eval("self.getLineProperties()"))
@@ -129,10 +164,10 @@ class BrainTestNavigator(Brain):
         hard_right = self.robot.range[7].distance()
 
         # Changes of state
-        transitionState(hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
+        self.transitionState(hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
 
         # Follow state
-        self.actionsForState[self.state](hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
+        self.states[self.state]['action'](hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
     
 def INIT(engine):
     assert (engine.robot.requires("range-sensor") and engine.robot.requires("continuous-movement"))
