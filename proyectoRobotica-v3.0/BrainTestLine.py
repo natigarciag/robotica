@@ -36,47 +36,26 @@ class BrainTestNavigator(Brain):
         right = min([s.distance() for s in self.robot.range["right-front"]])
 
         lineDistance = min([front, left, right]) - 0.6
-        print "Line to distance is:",lineDistance
+        # print "Distance to object is:",lineDistance
         Kp = 0.6*math.fabs(lineDistance)
         Kd = lineDistance - self.prevDistanceToObstacle
-        searchRange = 10
-
-        rotationSearchRange = 10
         turnSpeed =  -3*((Kp * lineDistance)/math.fabs(Kd))
         turnSpeed = max(min(turnSpeed, 1),-1)
 
-        # The sharper the turn, the slower the robot advances forward
-        # forwardVelocity = min(((searchRange - math.fabs(Kd)) * searchRange) / 180, 1)
-        # parNormalizacion = 100
         parA = 0.6 #3.8
-        parB = 0.5 #-2.8
-        # Kd = Kd*5
+        parB = 1.3 #-2.8
+        Kd = Kd*10
         maxSpeed = 0.2
         x = max(0,min(1,math.fabs(Kd)))
+        print 'x',x
         rawForwardVelocity = parA*(x)**2 + parB*(x)
         forwardVelocity = max(min(rawForwardVelocity, maxSpeed),0)
 
         self.previousTurn = turnSpeed
         self.prevDistanceToObstacle = lineDistance
 
-        print "vel:",rawForwardVelocity,"turn:",turnSpeed, "Kd:",Kd
+        # print "vel:",rawForwardVelocity,"turn:",turnSpeed, "Kd:",Kd
         self.move(forwardVelocity,turnSpeed)
-
-        # if front < 0.5:
-        #     self.move(0, 0.8)
-        # elif right < 0.2:
-        #     self.move(0.2, -0.4)
-        # else:
-        #     self.move(0.2,0.1)
-
-        # if front < 0.5:
-        #     self.move(0, .8)
-        # elif right < 0.2:
-        #     self.move(0.2, -.4)
-        # # elif self.robot.range[7].distance() < 0.2 or self.robot.range[6].distance() < 0.27:
-        # #     self.move(0.2,.4)/
-        # else:
-        #     self.move(0.8, 0)
 
     def step(self):
         hasLine,lineDistance,searchRange = eval(self.robot.simulation[0].eval("self.getLineProperties()"))
@@ -86,20 +65,26 @@ class BrainTestNavigator(Brain):
         right = min([s.distance() for s in self.robot.range["right-front"]])
         hard_left = self.robot.range[0].distance()
         hard_right = self.robot.range[7].distance()
-        print "Distances",hard_left,left,front,left,hard_right
+        # print "Distances",hard_left,left,front,left,hard_right
         # print "I got from the simulation",hasLine,lineDistance,searchRange
 
         # Changes of state
-        if (self.state is 'followLine' and (front < 0.7 or left < 0.7 or right < 0.7)):
+        if (self.state is 'followLine' and (front < 0.7 or left < 0.1 or right < 0.1)):
             if (left > right):
                 self.state = 'objectOnRight'
             else:
                 self.state = 'objectOnLeft'
+            print "new state:", self.state
         elif (((self.state is 'objectOnRight') or (self.state is 'objectOnLeft')) and hasLine and self.searchLine is True):
-            self.state = 'followLine'
+            self.state = 'searchLine'
             self.searchLine = False
+            print "new state:", self.state
+            self.prevDistance = lineDistance
         elif (((self.state is 'objectOnRight') or (self.state is 'objectOnLeft')) and not hasLine):
             self.searchLine = True
+        elif self.state is 'searchLine' and hasLine and lineDistance < 0.7:
+            self.state = 'followLine'
+            print "new state:", self.state
 
         # Follow state
         if self.state is 'followLine':
@@ -124,7 +109,7 @@ class BrainTestNavigator(Brain):
 
                 self.previousTurn = turnSpeed
 
-                print "vel:",forwardVelocity,"turn:",turnSpeed, "Kd:",Kd
+                # print "vel:",forwardVelocity,"turn:",turnSpeed, "Kd:",Kd
                 self.move(forwardVelocity,turnSpeed)
 
             # elif self.firstStep:
@@ -137,12 +122,14 @@ class BrainTestNavigator(Brain):
 
             self.prevDistance = lineDistance
         elif self.state is 'objectOnLeft':
-            print 'object on left'
+            # print 'object on left'
             # followObjectOnLeft()
             self.followObjectOnRight()
         elif self.state is 'objectOnRight':
-            print 'object on right'
+            # print 'object on right'
             self.followObjectOnRight()
+        elif self.state is 'searchLine':
+            self.move(0.5,0)
     
 def INIT(engine):
     assert (engine.robot.requires("range-sensor") and engine.robot.requires("continuous-movement"))
