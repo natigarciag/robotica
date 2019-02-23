@@ -179,4 +179,4 @@ def INIT(engine):
     except AttributeError:
         pass
         
-return BrainTestNavigator('BrainTestNavigator', engine)
+    return BrainTestNavigator('BrainTestNavigator', engine)
