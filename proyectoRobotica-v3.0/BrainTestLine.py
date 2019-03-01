@@ -24,6 +24,7 @@ class BrainTestNavigator(Brain):
         self.state = 'searchLine'
         self.searchLine = True
         self.prevDistanceToObstacle = 1.0
+        self.lastTurn = 0
 
         self.states = {
             'searchLine': {
@@ -60,7 +61,7 @@ class BrainTestNavigator(Brain):
             # The sharper the turn, the slower the robot advances forward
             # forwardVelocity = min(((searchRange - math.fabs(Kd)) * searchRange) / 180, 1)
             parNormalizacion = 100
-            parA = 3.8
+            parA = 3.5
             parB = -2.8
             # Kd = Kd*5
             forwardVelocity = max(min(parA*((searchRange - 0.99*math.fabs(Kd)) * searchRange)**2 / (parNormalizacion**2) + parB*((searchRange - 0.99*math.fabs(Kd)) * searchRange) / (parNormalizacion), 1),0)
@@ -75,8 +76,13 @@ class BrainTestNavigator(Brain):
         else:
 
             # if we can't find the line we just go back, this isn't very smart (but definitely better than just stopping
-            turnSpeed = 0.1 if self.previousTurn > 0 else -0.1
-            self.move(-0.1, turnSpeed)
+            turnSpeed = 0.8 if self.previousTurn > 0 else -0.8
+            if self.lastTurn != 0:
+                self.move(-0.2, -(self.lastTurn))
+                self.lastTurn = 0
+            else:
+                self.move(-0.2,turnSpeed)
+                self.lastTurn = turnSpeed
 
         self.prevDistance = lineDistance
 
@@ -94,7 +100,7 @@ class BrainTestNavigator(Brain):
         parA = 0.6 #3.8
         parB = 1.3 #-2.8
         Kd = Kd*10
-        maxSpeed = 0.2
+        maxSpeed = 0.5
         x = max(0,min(1,math.fabs(Kd)))
         rawForwardVelocity = parA*(x)**2 + parB*(x)
         forwardVelocity = max(min(rawForwardVelocity, maxSpeed),0)
@@ -106,7 +112,7 @@ class BrainTestNavigator(Brain):
         self.move(forwardVelocity,turnSpeed)
 
     def leaveObjectOnRight(self,hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
-        self.move(0.3, 0.6)
+        self.move(0.2, 0.8)
 
     def transitionState(self, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
         previousState = self.state
@@ -141,7 +147,7 @@ class BrainTestNavigator(Brain):
             
 
         elif self.state is 'leaveObjectOnRight':
-            if hasLine and absDist < 0.25:
+            if hasLine and absDist < 0.95:
                 self.state = 'approachLine'
             self.printSummary(previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
          
