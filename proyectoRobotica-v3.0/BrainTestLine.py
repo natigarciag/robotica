@@ -21,12 +21,15 @@ class BrainTestNavigator(Brain):
         self.prevDistance = 10.0
         self.Ki = 0.0   
         self.previousTurn = 0
-        self.state = 'searchLine'
+        self.state = 'initialSearchLine'
         self.searchLine = True
         self.prevDistanceToObstacle = 1.0
         self.lastTurn = 0
 
         self.states = {
+            'initialSearchLine': {
+                'action': self.goForward
+            },
             'searchLine': {
                 'action': self.followLine
             },
@@ -45,6 +48,9 @@ class BrainTestNavigator(Brain):
         }
 
         pass
+
+    def goForward(self, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
+        self.move(0.5,0.0)
 
     def followLine(self, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
         # if (hasLine or not self.firstStep):
@@ -118,7 +124,14 @@ class BrainTestNavigator(Brain):
         previousState = self.state
         absDist = math.fabs(lineDistance)
 
-        if self.state is 'searchLine':
+        if self.state is 'initialSearchLine':
+            if hasLine:
+                self.state = 'followLine'
+            elif (front < 0.7 or left < 0.1 or right < 0.1):
+                self.state = 'circleObjectOnRight'
+                self.notFoundLineFor = 10 
+
+        elif self.state is 'searchLine':
             if hasLine:
                 self.state = 'followLine'
 
