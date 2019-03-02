@@ -2,6 +2,12 @@ from pyrobot.brain import Brain
 
 import math
 
+# Autores:
+# Luciano García Giordano - 150245
+# Gonzalo Flórez Arias - 150048
+# Salvador González Gerpe - 150044
+
+
 class BrainTestNavigator(Brain):
 
     NO_FORWARD = 0
@@ -210,7 +216,6 @@ class BrainTestNavigator(Brain):
                 print 'Has line:',hasLine
                 self.searchLine = True
                 self.notFoundLineFor -= 1
-                # print 'not found for',self.notFoundLineFor
             
 
         elif self.state is 'leaveObjectOnRight':
@@ -226,7 +231,6 @@ class BrainTestNavigator(Brain):
             elif not hasLine:
                 self.searchLine = True
                 self.notFoundLineFor -= 1
-                # print 'not found for',self.notFoundLineFor
             
 
         elif self.state is 'leaveObjectOnLeft':
