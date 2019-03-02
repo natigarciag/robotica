@@ -44,6 +44,12 @@ class BrainTestNavigator(Brain):
             },
             'leaveObjectOnRight': {
                 'action': self.leaveObjectOnRight
+            },
+            'circleObjectOnLeft': {
+                'action': self.followObjectOnLeft
+            },
+            'leaveObjectOnLeft': {
+                'action': self.leaveObjectOnLeft
             }
         }
 
@@ -60,8 +66,11 @@ class BrainTestNavigator(Brain):
             # print "Kd sale: ",Kd
 
             # self.Ki = self.Ki + lineDistance
-
-            turnSpeed =  5*((Kp * lineDistance)/((searchRange - math.fabs(Kd)) * searchRange))
+            if Kd == 0:
+                turnSpeed = self.previousTurn
+            else:
+                turnSpeed =  5*((Kp * lineDistance)/((searchRange - math.fabs(Kd)) * searchRange))
+            
             turnSpeed = min(turnSpeed, 1)
 
             # The sharper the turn, the slower the robot advances forward
@@ -71,6 +80,10 @@ class BrainTestNavigator(Brain):
             parB = -2.8
             # Kd = Kd*5
             forwardVelocity = max(min(parA*((searchRange - 0.99*math.fabs(Kd)) * searchRange)**2 / (parNormalizacion**2) + parB*((searchRange - 0.99*math.fabs(Kd)) * searchRange) / (parNormalizacion), 1),0)
+
+            maxSpeed = 1.0 if (front > 1.0 and left > 0.5 and right > 0.5) else 0.2
+            if forwardVelocity > maxSpeed:
+                forwardVelocity = maxSpeed
 
             self.previousTurn = turnSpeed
 
@@ -93,20 +106,45 @@ class BrainTestNavigator(Brain):
         self.prevDistance = lineDistance
 
     def followObjectOnLeft(self, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
-        self.move(0,0.3)
-
-    def followObjectOnRight(self,hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
-        lineDistance = min([front, left, right]) - 0.6
+        lineDistance = min([front, left]) - 0.8
         # print "Distance to object is:",lineDistance
         Kp = 0.6*math.fabs(lineDistance)
         Kd = lineDistance - self.prevDistanceToObstacle
-        turnSpeed =  -3*((Kp * lineDistance)/math.fabs(Kd))
+        if Kd == 0:
+            turnSpeed = self.previousTurn
+        else:
+            turnSpeed =  3*((Kp * lineDistance)/math.fabs(Kd))
         turnSpeed = max(min(turnSpeed, 1),-1)
 
         parA = 0.6 #3.8
         parB = 1.3 #-2.8
         Kd = Kd*10
-        maxSpeed = 0.5
+        maxSpeed = 0.3
+        x = max(0,min(1,math.fabs(Kd)))
+        rawForwardVelocity = parA*(x)**2 + parB*(x)
+        forwardVelocity = max(min(rawForwardVelocity, maxSpeed),0)
+
+        self.previousTurn = turnSpeed
+        self.prevDistanceToObstacle = lineDistance
+
+        # print "vel:",rawForwardVelocity,"turn:",turnSpeed, "Kd:",Kd
+        self.move(forwardVelocity,turnSpeed)
+
+    def followObjectOnRight(self,hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
+        lineDistance = min([front, right]) - 0.8
+        # print "Distance to object is:",lineDistance
+        Kp = 0.6*math.fabs(lineDistance)
+        Kd = lineDistance - self.prevDistanceToObstacle
+        if Kd == 0:
+            turnSpeed = self.previousTurn
+        else:
+            turnSpeed =  -3*((Kp * lineDistance)/math.fabs(Kd))
+        turnSpeed = max(min(turnSpeed, 1),-1)
+
+        parA = 0.6 #3.8
+        parB = 1.3 #-2.8
+        Kd = Kd*10
+        maxSpeed = 0.3
         x = max(0,min(1,math.fabs(Kd)))
         rawForwardVelocity = parA*(x)**2 + parB*(x)
         forwardVelocity = max(min(rawForwardVelocity, maxSpeed),0)
@@ -118,17 +156,26 @@ class BrainTestNavigator(Brain):
         self.move(forwardVelocity,turnSpeed)
 
     def leaveObjectOnRight(self,hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
-        self.move(0.2, 0.8)
+        self.move(0.1, 0.4)
+
+    def leaveObjectOnLeft(self,hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
+        self.move(0.1, -0.4)
 
     def transitionState(self, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right):
         previousState = self.state
         absDist = math.fabs(lineDistance)
 
+        decisionDistanceObjectFront = 0.8
+        decisionDistanceObjectLateral = 0.6
+
         if self.state is 'initialSearchLine':
             if hasLine:
                 self.state = 'followLine'
-            elif (front < 0.7 or left < 0.1 or right < 0.1):
-                self.state = 'circleObjectOnRight'
+            elif (front < decisionDistanceObjectFront or left < decisionDistanceObjectLateral or right < decisionDistanceObjectLateral):
+                if (left < right):
+                    self.state = 'circleObjectOnLeft'
+                else:
+                    self.state = 'circleObjectOnRight'
                 self.notFoundLineFor = 10 
 
         elif self.state is 'searchLine':
@@ -139,18 +186,41 @@ class BrainTestNavigator(Brain):
             if (hasLine and absDist < 0.3):
                 self.state = 'followLine'
             
-            if (front < 0.7 or left < 0.1 or right < 0.1):
-                self.state = 'circleObjectOnRight'
+            if (front < decisionDistanceObjectFront or left < decisionDistanceObjectLateral or right < decisionDistanceObjectLateral):
+                if (left < right):
+                    self.state = 'circleObjectOnLeft'
+                else:
+                    self.state = 'circleObjectOnRight'
                 self.notFoundLineFor = 10
 
         elif self.state is 'followLine':
-            if (front < 0.7 or left < 0.1 or right < 0.1):
-                self.state = 'circleObjectOnRight'
+            if (front < decisionDistanceObjectFront or left < decisionDistanceObjectLateral or right < decisionDistanceObjectLateral):
+                if (left < right):
+                    self.state = 'circleObjectOnLeft'
+                else:
+                    self.state = 'circleObjectOnRight'
                 self.notFoundLineFor = 10
 
         elif self.state is 'circleObjectOnRight':
-            if hasLine and self.searchLine is True and self.notFoundLineFor < 0:
+            if hasLine and self.searchLine is True and self.notFoundLineFor < 0 and math.fabs(lineDistance) < 0.3:
                 self.state = 'leaveObjectOnRight'
+                self.searchLine = False
+                self.prevDistance = lineDistance
+            elif not hasLine:
+                print 'Has line:',hasLine
+                self.searchLine = True
+                self.notFoundLineFor -= 1
+                # print 'not found for',self.notFoundLineFor
+            
+
+        elif self.state is 'leaveObjectOnRight':
+            if hasLine and absDist < 0.95:
+                self.state = 'approachLine'
+            self.printSummary(previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
+
+        elif self.state is 'circleObjectOnLeft':
+            if hasLine and self.searchLine is True and self.notFoundLineFor < 0 and math.fabs(lineDistance) < 0.3:
+                self.state = 'leaveObjectOnLeft'
                 self.searchLine = False
                 self.prevDistance = lineDistance
             elif not hasLine:
@@ -159,7 +229,7 @@ class BrainTestNavigator(Brain):
                 # print 'not found for',self.notFoundLineFor
             
 
-        elif self.state is 'leaveObjectOnRight':
+        elif self.state is 'leaveObjectOnLeft':
             if hasLine and absDist < 0.95:
                 self.state = 'approachLine'
             self.printSummary(previousState, hasLine,lineDistance,searchRange,hard_left, left, front, right, hard_right)
