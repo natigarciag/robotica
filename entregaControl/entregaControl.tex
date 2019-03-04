@@ -146,6 +146,9 @@ En el background 3, de invención nuestra, hicimos un circuito cerrado. En diver
     \label{fig:mapa3}
 \end{figure}
 
+Como se puede observar, en algunos casos no se logra retomar la línea tras rodear un obstáculo debido al simulador, por el tema de que al encontrarse una línea perpendicular delante  no encuentra correctamente la distancia del centro, y por lo tanto no avisa al robot de que deje de seguir el obstáculo y vuelva a reencontrarse con la línea.
+
+
 Ya en el background 4, quisimos comprobar la capacidad del robot de completar un circuito cerrado. Elegimos para ello el conocido circuito de Hockenheim, llamado Hockenheimring \cite{hockenheimring}. Pusimos un objeto en la curva más cerrada dado que era demasiado cerrada.
 
 \begin{figure}[H]
@@ -155,7 +158,8 @@ Ya en el background 4, quisimos comprobar la capacidad del robot de completar un
     \label{fig:mapa4}
 \end{figure}
 
-Como se puede observar, en algunos casos no se logra retomar la línea tras rodear un obstáculo debido al simulador, por el tema de que al encontrarse una línea perpendicular delante  no encuentra correctamente la distancia del centro, y por lo tanto no avisa al robot de que deje de seguir el obstáculo y vuelva a reencontrarse con la línea.
+Como podemos observar, el robot entra en el circuito, lo recurre entero, da la vuelta alrededor del objeto y lo completa. En la ejecución mostrada en la figura \ref{fig:mapa4}, más adelante el robot finalizó la vuelta. Y no solo finalizó la vuelta como fue capaz de hacer una más antes que paráramos la simulación. De la manera que estaba funcionando, es muy probable que si hubiéramos dejado el simulador funcionando conseguiríamos más vueltas. 
+
 
 \begin{thebibliography}{1}
 
