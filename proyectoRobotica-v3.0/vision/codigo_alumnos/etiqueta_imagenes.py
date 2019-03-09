@@ -33,7 +33,7 @@ for i in range(numberOfImages):
     cv2.waitKey(1)
     cv2.waitKey(1)
     imNp = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    markImg = sel.select_fg_bg(imNp, radio=5)
+    markImg = sel.select_fg_bg(imNp, radio=4)
     
     # imsave('kk10.png', markImg[:,:,(2,1,0)])
 
