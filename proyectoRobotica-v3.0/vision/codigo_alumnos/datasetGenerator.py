@@ -1,7 +1,9 @@
+import pygame
 import numpy as np
+import cv2
+from sklearn.neighbors.nearest_centroid import NearestCentroid
 
-
-numberOfImages = 1
+numberOfImages = 4
 
 hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='r', shape=(numberOfImages, 240, 320, 2))
 markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='r', shape=(numberOfImages, 240, 320, 3))
@@ -32,9 +34,32 @@ for i in range(hsExpanded.shape[0]):
         
     hsExpanded[i,2] = pixelClass
 
-print(hsExpanded[hsExpanded[:,2] != 0])
+#print(hsExpanded[hsExpanded[:,2] != 0])
 
 
+###Clasificador
+Xtrain = hsExpanded[hsExpanded[:,2] != 0][:,0:-1]
+ytrain = hsExpanded[hsExpanded[:,2] != 0][:,-1]
+
+Xtest= Xtrain[-20000:]
+ytest = ytrain[-20000:]
+Xtrain = Xtrain[0:-20000]
+ytrain = ytrain[0:-20000]
+
+
+clf = NearestCentroid()
+clf.fit(Xtrain, ytrain)
+
+NearestCentroid(metric='euclidean', shrink_threshold=None)
+
+res = clf.predict(Xtest)
+
+tot = len(Xtest)
+aci = len(res[res==ytest])
+print(tot)
+print(aci)
+print(len(Xtest))
+print(100*(float(aci)/float(tot)))
 
 # data_marca=hsVector[np.where(np.all(np.equal(markedImage,(255,0,0)),2))]
 # data_fondo=hsVector[np.where(np.all(np.equal(markedImage,(0,255,0)),2))]

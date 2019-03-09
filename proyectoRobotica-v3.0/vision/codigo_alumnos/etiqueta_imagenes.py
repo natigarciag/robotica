@@ -7,7 +7,7 @@ import numpy as np
 
 capture = cv2.VideoCapture('./video.mp4')
 
-numberOfImages = 1
+numberOfImages = 10
 
 hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='w+', shape=(numberOfImages, 240, 320, 2))
 markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='w+', shape=(numberOfImages, 240, 320, 3))
