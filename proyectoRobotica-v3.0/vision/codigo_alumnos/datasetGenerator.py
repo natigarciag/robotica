@@ -2,24 +2,15 @@ import pygame
 import numpy as np
 import cv2
 from sklearn.neighbors.nearest_centroid import NearestCentroid
-import clasificadorEuc
+import config
 
-numberOfImages = 6
+hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
+markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
 
-hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='r', shape=(numberOfImages, 240, 320, 2))
-markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='r', shape=(numberOfImages, 240, 320, 3))
+hsVector = hsImages.reshape((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],2))
+markedVector = markedImages.reshape((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],3))
 
-hsVector = hsImages.reshape((numberOfImages*240*320,2))
-# hsVector = hsImages
-markedVector = markedImages.reshape((numberOfImages*240*320,3))
-# markedVector = markedImages
-# print(markedVector[:,0,0])
-
-# print(markedImages[markedVector == np.array([0,0,0], dtype='float32')[np.newaxis, np.newaxis]])
-
-# markedImage = markedVector[0]
-
-hsExpanded = np.zeros((numberOfImages*240*320,3))
+hsExpanded = np.zeros((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],3), dtype='uint8')
 hsExpanded[:,:-1] = hsVector
 
 for i in range(hsExpanded.shape[0]):
@@ -35,16 +26,14 @@ for i in range(hsExpanded.shape[0]):
         
     hsExpanded[i,2] = pixelClass
 
-#print(hsExpanded[hsExpanded[:,2] != 0])
-
-
 shapeD = hsExpanded[hsExpanded[:,2] != 0].shape
-dataset = np.memmap('dataset.driver', dtype='uint8', mode='w+', shape=shapeD)
+dataset = np.memmap('dataset.driver', dtype=np.uint8, mode='w+', shape=shapeD)
 
 dataset[:] = hsExpanded[hsExpanded[:,2] != 0]
 dataset.flush()
 
-clasificadorEuc.clasificar(shapeD)
+# imagenes con pixeles en RGB
+# |H|S|Clase|
 
 
 

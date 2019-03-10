@@ -3,16 +3,15 @@ from scipy.misc import imread, imsave
 from matplotlib import pyplot as plt
 import select_pixels as sel
 import numpy as np
+import config
 
 
 capture = cv2.VideoCapture('./video.mp4')
 
-numberOfImages = 10
+hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
+markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
 
-hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='w+', shape=(numberOfImages, 240, 320, 2))
-markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='w+', shape=(numberOfImages, 240, 320, 3))
-
-for i in range(numberOfImages):
+for i in range(config.numberOfImages):
     print(i)
 
     # cImg = 0
@@ -33,7 +32,7 @@ for i in range(numberOfImages):
     cv2.waitKey(1)
     cv2.waitKey(1)
     imNp = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    markImg = sel.select_fg_bg(imNp, radio=4)
+    markImg = sel.select_fg_bg(imNp)
     
     # imsave('kk10.png', markImg[:,:,(2,1,0)])
 
