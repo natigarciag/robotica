@@ -1,7 +1,10 @@
+import pygame
 import numpy as np
+import cv2
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+import clasificadorEuc
 
-
-numberOfImages = 1
+numberOfImages = 6
 
 hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='r', shape=(numberOfImages, 240, 320, 2))
 markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='r', shape=(numberOfImages, 240, 320, 3))
@@ -32,12 +35,16 @@ for i in range(hsExpanded.shape[0]):
         
     hsExpanded[i,2] = pixelClass
 
-print(hsExpanded[hsExpanded[:,2] != 0])
+#print(hsExpanded[hsExpanded[:,2] != 0])
+
+
+shapeD = hsExpanded[hsExpanded[:,2] != 0].shape
+dataset = np.memmap('dataset.driver', dtype='uint8', mode='w+', shape=shapeD)
+
+dataset[:] = hsExpanded[hsExpanded[:,2] != 0]
+dataset.flush()
+
+clasificadorEuc.clasificar(shapeD)
 
 
 
-# data_marca=hsVector[np.where(np.all(np.equal(markedImage,(255,0,0)),2))]
-# data_fondo=hsVector[np.where(np.all(np.equal(markedImage,(0,255,0)),2))]
-# data_linea=hsVector[np.where(np.all(np.equal(markedImage,(0,0,255)),2))]
-
-# print(data_marca)

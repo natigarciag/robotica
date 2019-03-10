@@ -7,7 +7,7 @@ import numpy as np
 
 capture = cv2.VideoCapture('./video.mp4')
 
-numberOfImages = 1
+numberOfImages = 10
 
 hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='w+', shape=(numberOfImages, 240, 320, 2))
 markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='w+', shape=(numberOfImages, 240, 320, 3))
@@ -33,7 +33,7 @@ for i in range(numberOfImages):
     cv2.waitKey(1)
     cv2.waitKey(1)
     imNp = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    markImg = sel.select_fg_bg(imNp, radio=5)
+    markImg = sel.select_fg_bg(imNp, radio=4)
     
     # imsave('kk10.png', markImg[:,:,(2,1,0)])
 
