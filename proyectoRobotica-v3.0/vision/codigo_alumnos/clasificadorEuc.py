@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 import sklearn.naive_bayes as nb
 import sklearn.svm as svm
 import sklearn.neural_network as nn
+import sklearn.metrics as metrics
 import sys
 import config
 
@@ -25,6 +26,11 @@ class Clasificador():
 
 
 		print 'Accuracy is: ' + str(self.clf.score(self.X_test, self.y_test))
+
+		confusionMatrix = metrics.confusion_matrix(self.y_test, self.clf.predict(self.X_test))
+
+		print 'Confusion matrix:'
+		print confusionMatrix
 
 	def predict(self,X):
 		return self.clf.predict(X)

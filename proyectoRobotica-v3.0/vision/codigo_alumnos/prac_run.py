@@ -7,7 +7,7 @@
 
 
 import cv2
-from scipy.misc import imread, imsave
+# from scipy.misc import imread, imsave
 from matplotlib import pyplot as plt
 import numpy as np
 import config
