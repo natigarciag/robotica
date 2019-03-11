@@ -44,7 +44,7 @@ def select_fg_bg(img, radio=2):
     while True:
         e = pygame.event.wait()
         if e.type == pygame.QUIT:
-            break;
+            break
         if e.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed()[0]:
                 color=color_red
