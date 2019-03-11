@@ -25,7 +25,10 @@ clf.train()
 capture = cv2.VideoCapture('./video.mp4')
 
 # Ahora clasifico el video
+frame = 0
 while (True):
+    capture.set(cv2.CAP_PROP_POS_FRAMES, frame)
+    frame += 5
     ret, im = capture.read()
 
     # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
