@@ -1,3 +1,9 @@
+# Autores:
+# Luciano García Giordano - 150245
+# Gonzalo Flórez Arias - 150048
+# Salvador González Gerpe - 150044
+
+
 import numpy as np
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 import sklearn

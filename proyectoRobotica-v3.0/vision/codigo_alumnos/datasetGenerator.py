@@ -1,3 +1,8 @@
+# Autores:
+# Luciano García Giordano - 150245
+# Gonzalo Flórez Arias - 150048
+# Salvador González Gerpe - 150044
+ 
 import pygame
 import numpy as np
 import cv2
