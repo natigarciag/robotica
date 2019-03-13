@@ -1,7 +1,7 @@
 # Autores:
-# Luciano García Giordano - 150245
-# Gonzalo Flórez Arias - 150048
-# Salvador González Gerpe - 150044
+# Luciano Garcia Giordano - 150245
+# Gonzalo Florez Arias - 150048
+# Salvador Gonzalez Gerpe - 150044
 
 import cv2
 from matplotlib import pyplot as plt
@@ -18,7 +18,7 @@ clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
 clf.train()
 
 # Inicio la captura de imagenes
-capture = cv2.VideoCapture('./video.mp4')
+capture = cv2.VideoCapture('./video1.mp4')
 
 # Ahora clasifico el video
 frame = 0
