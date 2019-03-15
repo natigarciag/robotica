@@ -17,7 +17,7 @@ import config
 
 class Clasificador():
 	def __init__(self, shapeD):
-		self.dataset = np.memmap('dataset.driver', dtype='uint8', mode='r', shape=shapeD)
+		self.dataset = np.memmap('./datasets/dataset.driver', dtype='uint8', mode='r', shape=shapeD)
 
 	def train(self):
 		X = self.dataset[:,0:-1]

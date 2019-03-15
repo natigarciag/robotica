@@ -13,8 +13,8 @@ import config
 
 capture = cv2.VideoCapture('./video.mp4')
 
-hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
-markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
+hsImages = np.memmap('./datasets/hsImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
+markedImages = np.memmap('./datasets/markedImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
 
 for i in range(config.numberOfImages):
     print(i)

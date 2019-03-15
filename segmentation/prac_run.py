@@ -18,7 +18,7 @@ clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
 clf.train()
 
 # Inicio la captura de imagenes
-capture = cv2.VideoCapture('./video1.mp4')
+capture = cv2.VideoCapture('./videos/video1.mp4')
 
 # Ahora clasifico el video
 frame = 0

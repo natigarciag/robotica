@@ -9,8 +9,8 @@ import cv2
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 import config
 
-hsImages = np.memmap('hsImages.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
-markedImages = np.memmap('markedImages.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
+hsImages = np.memmap('./datasets/hsImages.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
+markedImages = np.memmap('./datasets/markedImages.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
 
 hsVector = hsImages.reshape((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],2))
 markedVector = markedImages.reshape((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],3))
