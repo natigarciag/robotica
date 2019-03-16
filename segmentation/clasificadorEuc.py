@@ -12,6 +12,7 @@ import sklearn.naive_bayes as nb
 import sklearn.svm as svm
 import sklearn.neural_network as nn
 import sklearn.metrics as metrics
+import sklearn.tree as tree
 import sys
 import config
 
@@ -23,11 +24,26 @@ class Clasificador():
 		X = self.dataset[:,0:-1]
 		Y = self.dataset[:,-1]
 
-		self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, Y, test_size=0.1, shuffle=True)
+		self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, Y, test_size=0.3, shuffle=True)
 		
 		# self.clf = NearestCentroid(metric='euclidean', shrink_threshold=None)
-		# self.clf = nb.GaussianNB()
-		self.clf = nn.MLPClassifier(hidden_layer_sizes=(4,3), activation='logistic', alpha=0.001)
+		# print self.y_train[0]
+
+		# print self.y_train[self.y_train==1].shape
+		# print self.X_train.shape
+
+		# print (self.X_train[self.X_train==0].shape[0]+ 0.0)/self.X_train.shape[0]
+		# print (self.X_train[self.X_train==1].shape[0]+ 0.0)/self.X_train.shape[0]
+		# print (self.X_train[self.X_train==2].shape[0]+ 0.0)/self.X_train.shape[0]
+		
+		
+		# self.clf = nb.GaussianNB(priors=[
+		# 	(self.y_train[self.y_train==1].shape[0] + 0.0)/self.y_train.shape[0], 
+		# 	(self.y_train[self.y_train==2].shape[0] + 0.0)/self.y_train.shape[0], 
+		# 	(self.y_train[self.y_train==3].shape[0] + 0.0)/self.y_train.shape[0]])
+		# self.clf = tree.DecisionTreeClassifier(max_depth=2)
+		self.clf = nn.MLPClassifier(hidden_layer_sizes=(3), activation='logistic', alpha=0.005)
+		# self.clf = svm.SVC()
 		self.clf.fit(self.X_train, self.y_train)
 
 
