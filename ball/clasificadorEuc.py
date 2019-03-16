@@ -23,11 +23,11 @@ class Clasificador():
 		X = self.dataset[:,0:-1]
 		Y = self.dataset[:,-1]
 
-		self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, Y, test_size=0.1, shuffle=True)
+		self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, Y, test_size=0.1, shuffle=True, random_state=123)
 		
 		# self.clf = NearestCentroid(metric='euclidean', shrink_threshold=None)
 		self.clf = nb.GaussianNB()
-		# self.clf = nn.MLPClassifier(hidden_layer_sizes=(4,3), activation='logistic', alpha=0.001)
+		# self.clf = nn.MLPClassifier(hidden_layer_sizes=(3), activation='logistic', alpha=0.005)
 		self.clf.fit(self.X_train, self.y_train)
 
 

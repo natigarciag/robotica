@@ -1,9 +1,10 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+cap.set(cv2.CAP_PROP_SATURATION, 150)
 
 out = cv2.VideoWriter('./videos/videoBola.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
 
