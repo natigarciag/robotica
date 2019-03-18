@@ -40,7 +40,7 @@ import config
 
 
 shapeD = (45239, 3)
-dataset = np.memmap('./datasets/dataset.driver', dtype=np.uint8, mode='r', shape=shapeD)
+dataset = np.memmap('/home/luciano/Dropbox/actualesUPM/robotica/proyecto/ball/datasets/dataset.driver', dtype=np.uint8, mode='r', shape=shapeD)
 
 
 
