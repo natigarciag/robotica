@@ -37,9 +37,10 @@ class BrainTestNavigator(
     
     def setup(self):
         print 'setup'
-        self.capture = cv2.VideoCapture('./videos/video.mp4')
+        self.capture = cv2.VideoCapture(0)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+        self.capture.set(cv2.CAP_PROP_SATURATION, 150)
 
         self.clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
         self.clf.train()
@@ -66,18 +67,18 @@ class BrainTestNavigator(
 
     def followBall(self, hasBall, ballDistance, ballPosition):
         turn = 0.0
-        if ballPosition['x'] > targetX:
+        if ballPosition['x'] > self.targetX:
             # Go right
             turn = -0.5
-        elif ballPosition['x'] < targetX:
+        elif ballPosition['x'] < self.targetX:
             # go left
             turn = 0.5
 
 
         speed = 0.0
-        if ballDistance < targetDistance:
+        if ballDistance < self.targetDistance:
             speed = -0.5
-        elif ballDistance > targetDistance:
+        elif ballDistance > self.targetDistance:
             speed = 0.5
 
         self.move(speed, turn)
@@ -152,7 +153,7 @@ class BrainTestNavigator(
         print 'Sigo vivo'
         ret, im = self.capture.read()
 
-        # cv2.imshow('Real', im)
+        cv2.imshow('Real', im)
 
         # segmentation
         print im
@@ -186,12 +187,12 @@ class BrainTestNavigator(
         paramF = 292.9
 
         dist = paramF*diameter / self.size
-        # print dist
+        print dist
 
 
-        # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+        cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
     
-        # cv2.waitKey(1)
+        cv2.waitKey(1)
 
         ballPosition = self.ballPosition
 
