@@ -1,4 +1,4 @@
-# from pyrobot.brain import Brain
+from pyrobot.brain import Brain
 
 import math
 
@@ -8,7 +8,8 @@ import numpy as np
 import config
 import datasetGenerator
 import clasificadorEuc
-import imutils
+#import imutils
+
 
 # Autores:
 # Luciano Garcia Giordano - 150245
@@ -34,12 +35,16 @@ class BrainTestNavigator(
     HARD_RIGHT = -1.0
     
     NO_ERROR = 0
+
+#    def move(self,a,b):
+#	pass
     
     def setup(self):
         print 'setup'
-        self.capture = cv2.VideoCapture('./videos/video.mp4')
+        self.capture = cv2.VideoCapture(0)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+	    self.capture.set(cv2.CAP_PROP_SATURATION, 150)
 
         self.clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
         self.clf.train()
@@ -66,19 +71,18 @@ class BrainTestNavigator(
 
     def followBall(self, hasBall, ballDistance, ballPosition):
         turn = 0.0
-        if ballPosition['x'] > targetX:
+        if ballPosition['x'] > self.targetX:
             # Go right
-            turn = -0.5
-        elif ballPosition['x'] < targetX:
+            turn = -1.5
+        elif ballPosition['x'] < self.targetX:
             # go left
-            turn = 0.5
-
+            turn = 1.5
 
         speed = 0.0
-        if ballDistance < targetDistance:
-            speed = -0.5
-        elif ballDistance > targetDistance:
-            speed = 0.5
+        if ballDistance < self.targetDistance:
+            speed = -0.7
+        elif ballDistance > self.targetDistance:
+            speed = 0.7
 
         self.move(speed, turn)
 
@@ -143,19 +147,20 @@ class BrainTestNavigator(
 
         if previousState != self.state:
             print "new state:", self.state
-        self.printSummary(previousState, hasBall, ballDistance, ballPosition)
+            self.printSummary(previousState, hasBall, ballDistance, ballPosition)
             
     def printSummary(self, previousState, hasBall, ballDistance, ballPosition):
         print "Data for new state decision is", previousState, hasBall, ballDistance, ballPosition        
     
     def evaluateBall(self):
-        print 'Sigo vivo'
+        #print 'Sigo vivo'
         ret, im = self.capture.read()
+	    # print ret
 
-        # cv2.imshow('Real', im)
+        #cv2.imshow('Real', im)
 
         # segmentation
-        print im
+        #print im
 
         blurred = cv2.GaussianBlur(im, (7,7),0)
         imHSV = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -188,8 +193,9 @@ class BrainTestNavigator(
         dist = paramF*diameter / self.size
         # print dist
 
-
+	    #print "imagen", segImg
         # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+	    #print segImg[0][0][0]
     
         # cv2.waitKey(1)
 
@@ -199,7 +205,7 @@ class BrainTestNavigator(
         return hasBall, dist, ballPosition
 
     def step(self):
-        print 'step'
+        #print 'step'
         hasBall, ballDistance, ballPosition = self.evaluateBall()
 
         # Changes of state
@@ -224,13 +230,13 @@ def INIT(engine):
     #     print 'init6'
 
     print 'init7'
-        
+
     return BrainTestNavigator('BrainTestNavigator', engine)
 
 
 
 
-# brain = BrainTestNavigator()
-# brain.setup()
-# while(True):
-#     brain.step()
+#brain = BrainTestNavigator()
+#brain.setup()
+#while(True):
+#    brain.step()
