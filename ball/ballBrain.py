@@ -17,7 +17,7 @@ import clasificadorEuc
 # Salvador Gonzalez Gerpe - 150044
 
 shrinkFactor = 4
-segImg = np.empty((240/shrinkFactor, 320/shrinkFactor, 3), dtype='uint8')
+segImg = np.empty((240/shrinkFactor, 320/shrinkFactor, 1), dtype='uint8')
 
 
 class BrainTestNavigator(
@@ -50,15 +50,15 @@ class BrainTestNavigator(
         self.clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
         self.clf.train()
 
-        self.targetDistance = 20.0
+        self.targetDistance = 40.0
         self.imageWidth = 320/4
         self.targetX = self.imageWidth / 2
         self.targetY = 120
         self.angularKp = 3.0
         self.angularKd = 5.0
 
-        self.linearKp = 2.0
-        self.linearKd = 2.0
+        self.linearKp = 0.08
+        self.linearKd = 1.0
 
         self.paleta = np.array([[0,0,0],[0,0,255],[0,255,0],[255,0,0]],dtype='uint8')
 
@@ -103,12 +103,17 @@ class BrainTestNavigator(
             else:
                 turn = 0.0
 
-            if math.fabs(linearDeviation) > 10.0:
+            if math.fabs(linearDeviation) > 5.0:
                 diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
                 if diffLinearDeviation == 0.0:
                     diffLinearDeviation = 5.0
-                speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
-                print speed
+                # speed = (-self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
+                speed = (self.linearKp*linearDeviation)
+                # print speed
+                if (speed < -1.0): 
+                    speed = -1.0
+                elif (speed > 1.0):
+                    speed = 1.0
             else:
                 speed = 0.0
             
@@ -120,7 +125,8 @@ class BrainTestNavigator(
         #     # go left
         #     turn = 1.5
 
-        speed = 0.0
+        # speed = 0.0
+        # turn = 0.0
         # if ballDistance < self.targetDistance:
         #     speed = -0.7
         # elif ballDistance > self.targetDistance:
@@ -218,11 +224,25 @@ class BrainTestNavigator(
         paleta = self.paleta  
 
         def predictRow(i):
-            segImg[i] = paleta[self.clf.predict(imHS[i])]
+            # segImg[i] = paleta[self.clf.predict(imHS[i])]
+            segImg[i] = self.clf.predict(imHS[i])[:, np.newaxis]
 
         [predictRow(i) for i in range(imHS.shape[0])]
+        
+        showImage = np.zeros(segImg.shape, dtype='uint8')
+        showImage[segImg==2] = 1
 
-        whereIsObject = np.all(segImg == [0,255,0], axis=-1)
+        # print showImage.shape
+        segImg1 = cv2.erode(showImage, None, dst=showImage, iterations=1) # don't touch this
+        # print showImage.shape
+        # print segImg1.shape
+        # segImg1 = cv2.dilate(segImg1, None, iterations=2)
+        # segImg1 = cv2.dilate(showImage, None, dst=showImage, iterations=2)
+
+        # whereIsObject = np.all(segImg1 == 2, axis=-1)
+        # print segImg1.shape
+        whereIsObject = np.all(segImg1 == 1, axis=-1)
+        # print whereIsObject
         whereIsObjectPositions = np.where(whereIsObject==True)
         
         if whereIsObjectPositions[1].shape[0] != 0:
@@ -234,11 +254,19 @@ class BrainTestNavigator(
                 self.size = 1.0
             hasBall = True
 
-            dist1 = 20.0 # put fixed distance to the object here
-            diameter = 6.8 # put size of object here
-            paramF = 279.26
+            dist0 = 20.0 # put fixed distance to the object here
+            # diameter = 6.8 # put size of object here
+            # paramF = 279.26
+            # paramF = 64.0
 
-            dist = (paramF*diameter) / self.size
+            # dist = (paramF*diameter) / self.size
+
+            size0 = 26
+
+            dist = (size0*dist0)/self.size
+
+            # print "minmax", minx, maxx, dist
+
 
             # print "paramF should be: ", (dist1*self.size)/diameter, "distance is: ", dist
         else:
@@ -250,6 +278,7 @@ class BrainTestNavigator(
 
 	    #print "imagen", segImg
         # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+        # cv2.imshow("Segmentacion Euclid",showImage*255)
 	    #print segImg[0][0][0]
     
         # cv2.waitKey(1)
