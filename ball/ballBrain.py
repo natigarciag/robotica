@@ -19,6 +19,10 @@ import clasificadorEuc
 shrinkFactor = 4
 segImg = np.empty((240/shrinkFactor, 320/shrinkFactor, 1), dtype='uint8')
 
+# Record video
+# outIm = cv2.VideoWriter('./videos/demoBolaImagen.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
+# outSeg = cv2.VideoWriter('./videos/demoBolaSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
+
 
 class BrainTestNavigator(
     Brain
@@ -58,7 +62,7 @@ class BrainTestNavigator(
         self.angularKd = 5.0
 
         self.linearKp = 0.08
-        self.linearKd = 1.0
+        self.linearKd = 0.05
 
         self.paleta = np.array([[0,0,0],[0,0,255],[0,255,0],[255,0,0]],dtype='uint8')
 
@@ -107,8 +111,8 @@ class BrainTestNavigator(
                 diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
                 if diffLinearDeviation == 0.0:
                     diffLinearDeviation = 5.0
-                # speed = (-self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
-                speed = (self.linearKp*linearDeviation)
+                speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
+                # speed = (self.linearKp*linearDeviation)
                 # print speed
                 if (speed < -1.0): 
                     speed = -1.0
@@ -208,6 +212,11 @@ class BrainTestNavigator(
     def evaluateBall(self):
         #print 'Sigo vivo'
         ret, im = self.capture.read()
+
+        # # Record video
+        # outIm.write(im)
+
+
 	    # print ret
 
         # cv2.imshow('Real', im)
@@ -279,7 +288,17 @@ class BrainTestNavigator(
 	    #print "imagen", segImg
         # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
         # cv2.imshow("Segmentacion Euclid",showImage*255)
-	    #print segImg[0][0][0]
+        
+        
+        # # Record video
+        # outFrame = np.repeat((showImage*255)[:, :, np.newaxis], 3, axis=2)[:,:,:,0]
+        # outSeg.write(outFrame)
+	    
+        
+        
+        # print outFrame.shape
+        
+        #print segImg[0][0][0]
     
         # cv2.waitKey(1)
 
