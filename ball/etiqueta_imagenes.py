@@ -11,7 +11,7 @@ import numpy as np
 import config
 
 
-capture = cv2.VideoCapture('./videos/videoBola.mp4')
+capture = cv2.VideoCapture('./videos/bolaTenis.mp4')
 
 hsImages = np.memmap('./datasets/hsImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
 markedImages = np.memmap('./datasets/markedImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))

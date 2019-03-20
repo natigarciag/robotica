@@ -3,9 +3,9 @@ from pyrobot.brain import Brain
 import math
 
 # Autores:
-# Luciano García Giordano - 150245
-# Gonzalo Flórez Arias - 150048
-# Salvador González Gerpe - 150044
+# Luciano Garcia Giordano - 150245
+# Gonzalo Florez Arias - 150048
+# Salvador Gonzalez Gerpe - 150044
 
 
 class BrainTestNavigator(Brain):

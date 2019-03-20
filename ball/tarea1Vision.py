@@ -6,7 +6,7 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 cap.set(cv2.CAP_PROP_SATURATION, 150)
 
-out = cv2.VideoWriter('./videos/videoBola.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
+out = cv2.VideoWriter('./videos/bolaTenis.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
 
 # print cv2.CAP_PROP_EXPOSURE
 
@@ -20,8 +20,8 @@ while(True):
     # Display the resulting frame
     cv2.imshow('frame',frame)
     out.write(frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    #if cv2.waitKey(1) & 0xFF == ord('q'):
+    #    break
 
 # When everything done, release the capture
 cap.release()

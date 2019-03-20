@@ -16,7 +16,8 @@ import clasificadorEuc
 # Gonzalo Florez Arias - 150048
 # Salvador Gonzalez Gerpe - 150044
 
-
+shrinkFactor = 4
+segImg = np.empty((240/shrinkFactor, 320/shrinkFactor, 3), dtype='uint8')
 
 
 class BrainTestNavigator(
@@ -36,22 +37,30 @@ class BrainTestNavigator(
     
     NO_ERROR = 0
 
-#    def move(self,a,b):
-#	pass
+    # def move(self,a,b):
+	#     pass
     
     def setup(self):
         print 'setup'
         self.capture = cv2.VideoCapture(0)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-	    self.capture.set(cv2.CAP_PROP_SATURATION, 150)
+        self.capture.set(cv2.CAP_PROP_SATURATION, 150)
 
         self.clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
         self.clf.train()
 
-        self.targetDistance = 30.0
-        self.targetX = 160
+        self.targetDistance = 20.0
+        self.imageWidth = 320/4
+        self.targetX = self.imageWidth / 2
         self.targetY = 120
+        self.angularKp = 3.0
+        self.angularKd = 5.0
+
+        self.linearKp = 2.0
+        self.linearKd = 2.0
+
+        self.paleta = np.array([[0,0,0],[0,0,255],[0,255,0],[255,0,0]],dtype='uint8')
 
         self.state = 'findBall'
 
@@ -70,19 +79,55 @@ class BrainTestNavigator(
         self.move(0.0, 0.0)
 
     def followBall(self, hasBall, ballDistance, ballPosition):
+        angularDeviation = (ballPosition['x'] - self.targetX)/self.imageWidth
+
+        linearDeviation = ballDistance - self.targetDistance
+        # print angularDeviation
+
         turn = 0.0
-        if ballPosition['x'] > self.targetX:
-            # Go right
-            turn = -1.5
-        elif ballPosition['x'] < self.targetX:
-            # go left
-            turn = 1.5
+        speed = 0.0
+        if (hasBall):
+            if math.fabs(angularDeviation) > 0.2:
+                # turn = -self.Kp*angularDeviation
+                diffAngularDev = math.fabs(angularDeviation) - math.fabs(self.prevAngularDeviation)
+                if diffAngularDev == 0.0:
+                    diffAngularDev = 1.1
+                turn = (-self.angularKp*angularDeviation)/math.fabs(self.angularKd*diffAngularDev)
+                # self.Kp += 0.1
+                # print "Kp is:", self.Kp
+                # print "turn is:", turn
+                if (turn < -2.0): 
+                    turn = -2.0
+                elif (turn > 2.0):
+                    turn = 2.0
+            else:
+                turn = 0.0
+
+            if math.fabs(linearDeviation) > 10.0:
+                diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
+                if diffLinearDeviation == 0.0:
+                    diffLinearDeviation = 5.0
+                speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
+                print speed
+            else:
+                speed = 0.0
+            
+        
+        # if ballPosition['x'] > self.targetX:
+        #     # Go right
+        #     turn = -1.5
+        # elif ballPosition['x'] < self.targetX:
+        #     # go left
+        #     turn = 1.5
 
         speed = 0.0
-        if ballDistance < self.targetDistance:
-            speed = -0.7
-        elif ballDistance > self.targetDistance:
-            speed = 0.7
+        # if ballDistance < self.targetDistance:
+        #     speed = -0.7
+        # elif ballDistance > self.targetDistance:
+        #     speed = 0.7
+
+
+        self.prevAngularDeviation = angularDeviation
 
         self.move(speed, turn)
 
@@ -138,6 +183,8 @@ class BrainTestNavigator(
         
         if self.state is 'findBall':
             if hasBall:
+                self.prevAngularDeviation = 20.0
+                self.prevLinearDeviation = 10.0
                 self.state = 'followBall'
 
         elif self.state is 'followBall':
@@ -145,9 +192,9 @@ class BrainTestNavigator(
                 self.state = 'findBall'
 
 
-        if previousState != self.state:
-            print "new state:", self.state
-            self.printSummary(previousState, hasBall, ballDistance, ballPosition)
+        # if previousState != self.state:
+        #     print "new state:", self.state
+        #     self.printSummary(previousState, hasBall, ballDistance, ballPosition)
             
     def printSummary(self, previousState, hasBall, ballDistance, ballPosition):
         print "Data for new state decision is", previousState, hasBall, ballDistance, ballPosition        
@@ -157,18 +204,23 @@ class BrainTestNavigator(
         ret, im = self.capture.read()
 	    # print ret
 
-        #cv2.imshow('Real', im)
+        # cv2.imshow('Real', im)
 
         # segmentation
         #print im
 
-        blurred = cv2.GaussianBlur(im, (7,7),0)
-        imHSV = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+        # blurred = cv2.GaussianBlur(im, (7,7),0)
+        # blurred = im
+        imHSV = im[0::shrinkFactor,0::shrinkFactor,:]
+        imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
         imHS = imHSV[:,:,(0,1)]
 
-        paleta = np.array([[0,0,0],[0,0,255],[0,255,0],[255,0,0]],dtype='uint8')  
+        paleta = self.paleta  
 
-        segImg = np.array([paleta[self.clf.predict(imHS[i])] for i in range(imHS.shape[0])], dtype='uint8')
+        def predictRow(i):
+            segImg[i] = paleta[self.clf.predict(imHS[i])]
+
+        [predictRow(i) for i in range(imHS.shape[0])]
 
         whereIsObject = np.all(segImg == [0,255,0], axis=-1)
         whereIsObjectPositions = np.where(whereIsObject==True)
@@ -181,17 +233,20 @@ class BrainTestNavigator(
             if self.size == 0:
                 self.size = 1.0
             hasBall = True
+
+            dist1 = 20.0 # put fixed distance to the object here
+            diameter = 6.8 # put size of object here
+            paramF = 279.26
+
+            dist = (paramF*diameter) / self.size
+
+            # print "paramF should be: ", (dist1*self.size)/diameter, "distance is: ", dist
         else:
             hasBall = False
             self.size = 30.0
+            dist = -1.0
 
-        # dist = 37.0 # put fixed distance to the object here
-        diameter = 12.0 # put size of object here
-        # print dist*size/diameter #uncomment to see your value of paramF
-        paramF = 292.9
-
-        dist = paramF*diameter / self.size
-        # print dist
+        
 
 	    #print "imagen", segImg
         # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
@@ -236,7 +291,7 @@ def INIT(engine):
 
 
 
-#brain = BrainTestNavigator()
-#brain.setup()
-#while(True):
+# brain = BrainTestNavigator()
+# brain.setup()
+# while(True):
 #    brain.step()
