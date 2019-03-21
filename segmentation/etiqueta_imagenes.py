@@ -11,10 +11,10 @@ import numpy as np
 import config
 
 
-capture = cv2.VideoCapture('./video.mp4')
+capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
 
-hsImages = np.memmap('./datasets/hsImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
-markedImages = np.memmap('./datasets/markedImages.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
+hsImages = np.memmap('./datasets/hsImagesManzana.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
+markedImages = np.memmap('./datasets/markedImagesManzana.driver', dtype='uint8', mode='w+', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
 
 for i in range(config.numberOfImages):
     print(i)
