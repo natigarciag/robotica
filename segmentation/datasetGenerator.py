@@ -2,8 +2,7 @@
 # Luciano Garcia Giordano - 150245
 # Gonzalo Florez Arias - 150048
 # Salvador Gonzalez Gerpe - 150044
- 
-#import pygame
+
 import numpy as np
 import cv2
 from sklearn.neighbors.nearest_centroid import NearestCentroid

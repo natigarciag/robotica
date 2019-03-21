@@ -45,21 +45,3 @@ class Clasificador():
 
 	def predict(self,X):
 		return self.clf.predict(X)
-
-# def clasificar(shapeD):
-
-# 	dataset = np.memmap('dataset.driver', dtype='uint8', mode='r', shape=shapeD)
-
-# 	###Clasificador
-	
-
-# 	res = clf.predict(Xtest)
-
-# 	tot = len(Xtest)
-# 	aci = len(res[res==ytest])
-# 	print("Datos totales")
-# 	print(len(dTot))
-# 	print(tot)
-# 	print(aci)
-# 	print(len(Xtest))
-# 	print(100*(float(aci)/float(tot)))
