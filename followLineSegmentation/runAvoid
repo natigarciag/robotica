@@ -1,0 +1,1 @@
+pyrobot -s RosServer -c rosaria.cfg -r Ros.py -b lineBrain.py
