@@ -8,14 +8,14 @@ from matplotlib import pyplot as plt
 import numpy as np
 import config
 import datasetGenerator
-import clasificadorEuc
+import clasificador
 import imutils
 
 import time
 
 
 
-clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
+clf = clasificador.Clasificador(datasetGenerator.shapeD)
 clf.train()
 
 # Inicio la captura de imagenes

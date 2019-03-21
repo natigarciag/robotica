@@ -11,7 +11,7 @@ def INIT():
     sim = LineSimulation((450,675), (20,650), 32,
                             #  background="line-images/lineBackground-1.png")  
                             #  background="line-images/lineBackground-2.png")  
-                            background="line-images/IMG_0037.png")
+                            background="../mapas/lineBackground-3.png")
                             # background="line-images/IMG_0038.png")
 
     # an example of an obstacle on the line

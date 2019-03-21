@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import config
 import datasetGenerator
-import clasificadorEuc
+import clasificador
 import imutils
 
 import time
@@ -45,7 +45,7 @@ if not args.get("video", False):
 else:
 	vs = cv2.VideoCapture(1)
 
-clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
+clf = clasificador.Clasificador(datasetGenerator.shapeD)
 clf.train()
  
 # allow the camera or video file to warm up

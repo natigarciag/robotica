@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import config
 import datasetGenerator
-import clasificadorEuc
+import clasificador
 #import imutils
 
 
@@ -51,15 +51,16 @@ class BrainTestNavigator(
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
         self.capture.set(cv2.CAP_PROP_SATURATION, 150)
 
-        self.clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
+        self.clf = clasificador.Clasificador(datasetGenerator.shapeD)
         self.clf.train()
 
         self.targetDistance = 40.0
         self.imageWidth = 320/4
+        self.imageHeight = 240/4
         self.targetX = self.imageWidth / 2
         self.targetY = 120
-        self.angularKp = 3.0
-        self.angularKd = 5.0
+        self.angularKp = 3.0 # turns more the higher
+        self.angularKd = 15.0 # turns more slowly the lower
 
         self.linearKp = 0.08
         self.linearKd = 0.05
@@ -85,41 +86,41 @@ class BrainTestNavigator(
     def followBall(self, hasBall, ballDistance, ballPosition):
         angularDeviation = (ballPosition['x'] - self.targetX)/self.imageWidth
 
-        linearDeviation = ballDistance - self.targetDistance
+        # linearDeviation = ballDistance - self.targetDistance
         # print angularDeviation
 
         turn = 0.0
-        speed = 0.0
+        speed = 0.6
         if (hasBall):
-            if math.fabs(angularDeviation) > 0.2:
-                # turn = -self.Kp*angularDeviation
-                diffAngularDev = math.fabs(angularDeviation) - math.fabs(self.prevAngularDeviation)
-                if diffAngularDev == 0.0:
-                    diffAngularDev = 1.1
-                turn = (-self.angularKp*angularDeviation)/math.fabs(self.angularKd*diffAngularDev)
-                # self.Kp += 0.1
-                # print "Kp is:", self.Kp
-                # print "turn is:", turn
-                if (turn < -2.0): 
-                    turn = -2.0
-                elif (turn > 2.0):
-                    turn = 2.0
-            else:
-                turn = 0.0
+            # if math.fabs(angularDeviation) > 0.2:
+            # turn = -self.Kp*angularDeviation
+            diffAngularDev = math.fabs(angularDeviation) - math.fabs(self.prevAngularDeviation)
+            if diffAngularDev == 0.0:
+                diffAngularDev = 1.1
+            turn = (-self.angularKp*angularDeviation)/math.fabs(self.angularKd*diffAngularDev)
+            # self.Kp += 0.1
+            # print "Kp is:", self.Kp
+            # print "turn is:", turn
+            if (turn < -2.0): 
+                turn = -2.0
+            elif (turn > 2.0):
+                turn = 2.0
+            # else:
+            #     turn = 0.0
 
-            if math.fabs(linearDeviation) > 5.0:
-                diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
-                if diffLinearDeviation == 0.0:
-                    diffLinearDeviation = 5.0
-                speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
-                # speed = (self.linearKp*linearDeviation)
-                # print speed
-                if (speed < -1.0): 
-                    speed = -1.0
-                elif (speed > 1.0):
-                    speed = 1.0
-            else:
-                speed = 0.0
+            # if math.fabs(linearDeviation) > 5.0:
+            #     diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
+            #     if diffLinearDeviation == 0.0:
+            #         diffLinearDeviation = 5.0
+            #     speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
+            #     # speed = (self.linearKp*linearDeviation)
+            #     # print speed
+            #     if (speed < -1.0): 
+            #         speed = -1.0
+            #     elif (speed > 1.0):
+            #         speed = 1.0
+            # else:
+            #     speed = 0.0
             
         
         # if ballPosition['x'] > self.targetX:
@@ -194,7 +195,7 @@ class BrainTestNavigator(
         if self.state is 'findBall':
             if hasBall:
                 self.prevAngularDeviation = 20.0
-                self.prevLinearDeviation = 10.0
+                # self.prevLinearDeviation = 10.0
                 self.state = 'followBall'
 
         elif self.state is 'followBall':
@@ -239,7 +240,7 @@ class BrainTestNavigator(
         [predictRow(i) for i in range(imHS.shape[0])]
         
         showImage = np.zeros(segImg.shape, dtype='uint8')
-        showImage[segImg==2] = 1
+        showImage[segImg==0] = 1
 
         # print showImage.shape
         segImg1 = cv2.erode(showImage, None, dst=showImage, iterations=1) # don't touch this
@@ -250,13 +251,15 @@ class BrainTestNavigator(
 
         # whereIsObject = np.all(segImg1 == 2, axis=-1)
         # print segImg1.shape
-        whereIsObject = np.all(segImg1 == 1, axis=-1)
+        segImgLine = segImg1[self.imageHeight*0.8,:]
+        whereIsObject = np.all(segImgLine == 1, axis=-1)
         # print whereIsObject
         whereIsObjectPositions = np.where(whereIsObject==True)
+        # print whereIsObjectPositions[0]
         
-        if whereIsObjectPositions[1].shape[0] != 0:
-            minx = np.min(whereIsObjectPositions[1])
-            maxx = np.max(whereIsObjectPositions[1])
+        if whereIsObjectPositions[0].shape[0] != 0:
+            minx = np.min(whereIsObjectPositions)
+            maxx = np.max(whereIsObjectPositions)
             self.size = maxx - minx
             self.ballPosition['x'] = (maxx + minx) / 2.0
             if self.size == 0:

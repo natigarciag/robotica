@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import config
 import datasetGenerator
-import clasificadorEuc
+import clasificador
 #import imutils
 
 
@@ -51,7 +51,7 @@ class BrainTestNavigator(
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
         self.capture.set(cv2.CAP_PROP_SATURATION, 150)
 
-        self.clf = clasificadorEuc.Clasificador(datasetGenerator.shapeD)
+        self.clf = clasificador.Clasificador(datasetGenerator.shapeD)
         self.clf.train()
 
         self.targetDistance = 40.0
