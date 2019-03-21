@@ -3,7 +3,7 @@
 # Gonzalo Florez Arias - 150048
 # Salvador Gonzalez Gerpe - 150044
  
-import pygame
+#import pygame
 import numpy as np
 import cv2
 from sklearn.neighbors.nearest_centroid import NearestCentroid
@@ -39,8 +39,13 @@ dataset[:] = hsExpanded[hsExpanded[:,2] != 3]
 dataset.flush()
 
 
+<<<<<<< HEAD
 #shapeD = (45239, 3)
 #dataset = np.memmap('./datasets/dataset.driver', dtype=np.uint8, mode='r', shape=shapeD)
+=======
+shapeD = (29115, 3)
+dataset = np.memmap('./datasets/tennisBallDataset.driver', dtype=np.uint8, mode='r', shape=shapeD)
+>>>>>>> upstream/master
 
 
 

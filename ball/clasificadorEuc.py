@@ -7,7 +7,7 @@
 import numpy as np
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 import sklearn
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
 import sklearn.naive_bayes as nb
 import sklearn.svm as svm
 import sklearn.neural_network as nn
@@ -17,13 +17,17 @@ import config
 
 class Clasificador():
 	def __init__(self, shapeD):
-		self.dataset = np.memmap('./datasets/dataset.driver', dtype='uint8', mode='r', shape=shapeD)
+		self.dataset = np.memmap('./datasets/tennisBallDataset.driver', dtype='uint8', mode='r', shape=shapeD)
 
 	def train(self):
 		X = self.dataset[:,0:-1]
 		Y = self.dataset[:,-1]
 
-		self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, Y, test_size=0.1, shuffle=True, random_state=123)
+		#self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, Y, test_size=0.1, shuffle=True, random_state=123)
+		self.X_train = X
+		self.X_test = X
+		self.y_train = Y
+		self.y_test = Y
 		
 		# self.clf = NearestCentroid(metric='euclidean', shrink_threshold=None)
 		self.clf = nb.GaussianNB()
