@@ -12,10 +12,6 @@ import clasificador
 
 import time
 
-from joblib import Parallel, delayed
-
-
-
 clf = clasificador.Clasificador(datasetGenerator.shapeD)
 clf.train()
 
@@ -34,64 +30,36 @@ paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')
 shrinkFactor = 4
 segImg = np.empty((config.imageShape['height']/shrinkFactor, config.imageShape['width']/shrinkFactor, 3), dtype='uint8')
 
+# outIm = cv2.VideoWriter('./videos/demoAlperaImagen.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
+# outSeg = cv2.VideoWriter('./videos/demoAlperaSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
+
+
 times = []
 while (capture.isOpened()):
     beg = time.time()
     
-    # capture.set(cv2.CAP_PROP_POS_FRAMES, frame)
-    # frame += 3
     ret, im = capture.read()
-    
-    # times.append(time.time())
-
-    # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    # outIm.write(im)
 
     cv2.imshow('Real', im)
 
-    # times.append(time.time())
-
-    # im = cv2.GaussianBlur(im, (7,7), 0)
-
-    # times.append(time.time())
-
     # segmentation
     imHSV = im[0::shrinkFactor,0::shrinkFactor,:]
-    # times.append(time.time())
     imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
-    # times.append(time.time())
     imHS = imHSV[:,:,(0,1)]
-    # times.append(time.time())
-
-    # segImg = np.array([[paleta[clf.predict(imHS[i,j])] for j in range(imHS.shape[1])] for i in range(imHS.shape[0])], dtype='uint8')
+    
     def predictRow(i):
         segImg[i] = paleta[clf.predict(imHS[i])]
-        # if i > 238:
-        #     times.append(time.time())
 
-
-    # Parallel(n_jobs=4)(delayed(predictRow)(i) for i in range(imHS.shape[0]))
-    # times.append(time.time())
     [predictRow(i) for i in range(imHS.shape[0])]
-    # times.append(time.time())
-    # end3 = time.time()
 
-    # segImg = np.array([paleta[clf.predict(imHS[i])] for i in range(imHS.shape[0])], dtype='uint8')
-    # imHS = np.reshape(imHS, ((config.imageShape['height']/2)*(config.imageShape['width']/2),2))
-    # segImg = paleta[clf.predict(imHS)]
-    # segImg = np.reshape(segImg, (config.imageShape['height']/2,config.imageShape['width']/2,3))
 
-    # times.append(time.time())
     cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
     
-    # times.append(time.time())
-
     times.append(time.time() - beg)
-    # differences = []
-    # for time1 in times:
-    #     differences.append(time1 - beg)
 
-    # print np.mean(np.array(times))
+    print np.mean(np.array(times))
  
     cv2.waitKey(1)
 
-# cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+    # outSeg.write(cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
