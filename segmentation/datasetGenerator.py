@@ -8,8 +8,8 @@ import cv2
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 import config
 
-# hsImages = np.memmap('./datasets/hsImagesManzana.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
-# markedImages = np.memmap('./datasets/markedImagesManzana.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
+# hsImages = np.memmap('./datasets/hsImages' + config.datasetName + '.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 2))
+# markedImages = np.memmap('./datasets/markedImages' + config.datasetName + '.driver', dtype='uint8', mode='r', shape=(config.numberOfImages, config.imageShape['height'], config.imageShape['width'], 3))
 
 # hsVector = hsImages.reshape((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],2))
 # markedVector = markedImages.reshape((config.numberOfImages*config.imageShape['height']*config.imageShape['width'],3))
@@ -32,14 +32,26 @@ import config
 
 # shapeD = hsExpanded[hsExpanded[:,2] != 3].shape
 # print shapeD
-# dataset = np.memmap('./datasets/datasetManzana.driver', dtype=np.uint8, mode='w+', shape=shapeD)
+# dataset = np.memmap('./datasets/dataset' + config.datasetName + '.driver', dtype=np.uint8, mode='w+', shape=shapeD)
 
 # dataset[:] = hsExpanded[hsExpanded[:,2] != 3]
 # dataset.flush()
 
 
-shapeD = (61983, 3)
-dataset = np.memmap('./datasets/datasetManzana.driver', dtype=np.uint8, mode='r', shape=shapeD)
+shapeD  = (20663, 3)
+dataset = np.memmap('./datasets/dataset' + config.datasetName + '.driver', dtype=np.uint8, mode='r', shape=shapeD)
+
+
+
+
+
+
+
+
+# shapeD = (61983, 3) # good for Alpera
+# dataset = np.memmap('./datasets/datasetManzana.driver', dtype=np.uint8, mode='r', shape=shapeD)
+
+
 
 
 
