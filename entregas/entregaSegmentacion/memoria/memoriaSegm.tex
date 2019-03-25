@@ -113,14 +113,14 @@
 	\begin{figure}[H]
 	    \centering
 	    \includegraphics[width=12cm]{figura1.png}
-	    \caption{Ejemplo de la segmentación.}
+	    \caption{Ejemplo de la segmentación.} 
 	    \label{fig:figura1}
 	\end{figure}
 
 	\begin{figure}[H]
 	    \centering
 	    \includegraphics[width=12cm]{figura2.png}
-	    \caption{Ejemplo de la segmentación.}
+	    \caption{Ejemplo de la segmentación. Si nos detenemos bien en los bordes de la línea, podemos ver fácilmente algunos píxeles rojos. Sin embargo, hemos llegado a hacer pruebas en el caso de la parte opcional con la función erode de openCV, que nos permite eliminar esas pequeñas regiones mal segmentadas. No implementamos en nuestra solución aún porque eso exige capturar la capa de línea y la de símbolo por separado y en valores binarios para luego aplicar la función a cada una por separado y volver a mostrar los resultados.}
 	    \label{fig:figura2}
 	\end{figure}
 
@@ -147,22 +147,23 @@
 
 	\begin{figure}[H]
 	    \centering
-	    \includegraphics[width=12cm]{pelota1.png}
+	    \includegraphics[width=12cm]{pelota2.png}
 	    \caption{Captura de la imagen original de la pelota en un brain que ejecuta en el robot real.}
 	    \label{fig:pelota1}
 	\end{figure}
 
 	\begin{figure}[H]
 	    \centering
-	    \includegraphics[width=12cm]{pelota2.png}
-	    \caption{Captura de la segmentación de la pelota en un brain que ejecuta en el robot real. Como bien se puede ver, hacemos uso de la función erode de openCV para que no se consideren pequeños defectos de la segmentación.}
+	    \includegraphics[width=12cm]{pelota1.png}
+	    \caption{Captura de la segmentación de la pelota en un brain que ejecuta en el robot real. Como bien se puede ver, la curva blanca de la pelota de tennis no se captura como parte de la pelota. Además, esa línea crece en la segmentación. Eso es un efecto de la función erode de OpenCV, que usamos príncipalmente para que no se consideren pequeños defectos de la segmentación.}
 	    \label{fig:pelota2}
 	\end{figure}
 
 \section{Conclusiones y mejoras pendientes}
 
 	Pensamos, en conclusión, que nuestro algoritmo de segmentación obtiene buenos resultados con las pruebas llevadas a cabo. Es cierto que podría ser más rápido (especialmente en nuestra primera versión, de la primera entrega de esta parte), pero hemos tratado de encontrar un equilibrio entre resultados y tiempos de ejecución que nos permita emplear este algoritmo una vez usemos el robot real.
-
+	
+	Cuánto a mejoras pendientes, pensamos que diversos puntos requieren nuestra atención. El principal de ellos es que la segmentación todavía está lejos de ser perfecta. Eso se debe principalmente a que un píxel, en su individualidad, no es capaz de expresar del todo bien la entidad a que pertenece. Pensamos utilizar esos datos de segmentación para entrenar un clasificador basado en contexto, que como mínimo pueda fijarse en los píxeles alrededor del que intenta clasificar. Una posibilidad un poco lejos dada la potencia de cálculo que tiene el robot sería utilizar un segmentador por convoluciones. Según nuestro análisis, sería una red de neuronas artificiales con una capa convolucional al principio y probablemente algunas de pooling o convolución más. Estimamos un total de 3 o 4 capas, lo que ya sería demasiado para el robot que disponemos, además que exigiría operar con bibliotecas muy recientes que quizás no presenten demasiada compatibilidad con Python 2.7. Intentaremos, sin embargo, hacer esta mejora en el futuro.
 
 
 
