@@ -17,7 +17,7 @@ import config
 
 class Clasificador():
 	def __init__(self, shapeD):
-		self.dataset = np.memmap('./datasets/datasetManzana.driver', dtype='uint8', mode='r', shape=shapeD)
+		self.dataset = np.memmap('./datasets/dataset' + config.datasetName + '.driver', dtype='uint8', mode='r', shape=shapeD)
 
 	def train(self):
 		indices = np.random.permutation(self.dataset.shape[0])

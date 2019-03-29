@@ -16,7 +16,7 @@ clf = clasificador.Clasificador(datasetGenerator.shapeD)
 clf.train()
 
 # Inicio la captura de imagenes
-capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
+capture = cv2.VideoCapture('./videos/video.mp4')
 # capture = cv2.VideoCapture(0)
 # capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 # capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
@@ -25,13 +25,13 @@ capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
 # Ahora clasifico el video
 frame = 0
 
-paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
+paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')
 
 shrinkFactor = 4
 segImg = np.empty((config.imageShape['height']/shrinkFactor, config.imageShape['width']/shrinkFactor, 3), dtype='uint8')
 
-# outIm = cv2.VideoWriter('./videos/demoAlperaImagen.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
-# outSeg = cv2.VideoWriter('./videos/demoAlperaSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
+# outIm = cv2.VideoWriter('./videos/demoImagen.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
+# outSeg = cv2.VideoWriter('./videos/demoSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
 
 
 times = []
