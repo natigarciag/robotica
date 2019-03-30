@@ -34,7 +34,81 @@ segImg = np.empty((config.imageShape['height']/shrinkFactor, config.imageShape['
 # outSeg = cv2.VideoWriter('./videos/demoSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
 
 def getSalidas(line):
-    return []
+ 	height = len(line)-1  #240
+	width = len(line[0])-1  #320
+
+ 	InsOuts = []
+
+ 	Sup = []
+	i = 0
+
+ 	for index,pixel in enumerate(line[0]):	#Fila Superior
+		if pixel == 0 and i != 0:
+			Sup.append([index-i,index-1])
+			i = 0
+ 		elif pixel == 1:
+			i = i+1
+
+ 	if pixel == 1:
+		InsOuts.append([0,width])
+
+ 	Inf = []
+	i = 0
+
+ 	for index,pixel in enumerate(line[height]):	#Fila Inferior
+		if pixel == 0 and i != 0:
+			Inf.append([index-i,index-1])
+			i = 0
+ 		elif pixel == 1:
+			i = i+1
+
+ 	if pixel == 1:
+		InsOuts.append([height,width])
+
+ 	Izq = []
+	i = 0
+
+ 	for index,pixel in enumerate([row[0] for row in line]):	#Fila Inferior
+		if pixel == 0 and i != 0:
+			Izq.append([index-i,index-1])
+			i = 0
+ 		elif pixel == 1:
+			i = i+1
+
+ 	if pixel == 1:
+		InsOuts.append([height,0])
+
+
+ 	Der = []
+	i = 0
+
+ 	for index,pixel in enumerate([row[width] for row in line]):	#Fila Inferior
+		if pixel == 0 and i != 0:
+			Der.append([index-i,index-1])
+			i = 0
+ 		elif pixel == 1:
+			i = i+1
+
+ 	if pixel == 1:
+		InsOuts.append([height,width])
+
+
+ 	for el in Sup:
+		InsOuts.append([0,(el[1]-el[0])/2 + el[0]])
+	for el in Inf:
+		InsOuts.append([height,(el[1]-el[0])/2 + el[0]])
+	for el in Izq:
+		InsOuts.append([(el[1]-el[0])/2 + el[0],0])
+	for el in Der:
+		InsOuts.append([(el[1]-el[0])/2 + el[0],width])
+
+ 	Result = []
+	for el in InsOuts:
+		if el not in Result:
+			Result.append(el)
+
+ 	print 'Pixels', Result
+	return Result
 
 
 def getArrowPosition(arrow):
@@ -82,6 +156,7 @@ while (capture.isOpened()):
     arrow[segImg==2] = 1
 
     arrow = cv2.erode(arrow, None, dst=arrow, iterations=1)
+    # line = cv2.erode(line, None, dst=line, iterations=1)
 
     salidas = getSalidas(line)
     centerOfArrow, angleOfArrow = getArrowPosition(arrow)
