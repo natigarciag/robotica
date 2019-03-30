@@ -40,11 +40,11 @@ def getSalidas(line):
 def getArrowPosition(arrow):
     # arrow = cv2.dilate(arrow, None, dst=arrow, iterations=1)
     if (np.sum(arrow) == 0):
-        return (0,0), 0
+        return (0,0), -1
     positionsOfArrow = np.where(arrow==1)
     # print 'Positions are', positionsOfArrow[0].shape
     if (positionsOfArrow[0].shape[0] < 5):
-        return (0,0), 0
+        return (0,0), -1
     positionsOfArrow = np.dstack((positionsOfArrow[0], positionsOfArrow[1]))
     # print positionsOfArrow.shape
 
