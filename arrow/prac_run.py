@@ -110,12 +110,11 @@ def getSalidas(line):
         if el not in Result:
             Result.append(el)
 
-    print 'Pixels', Result
+    # print 'Pixels', Result
     return Result
 
 
 def getArrowPosition(arrow):
-    # arrow = cv2.dilate(arrow, None, dst=arrow, iterations=1)
     if (np.sum(arrow) == 0):
         return (0, 0), -1
     positionsOfArrow = np.where(arrow == 1)
@@ -124,11 +123,25 @@ def getArrowPosition(arrow):
         return (0, 0), -1
     positionsOfArrow = np.dstack((positionsOfArrow[0], positionsOfArrow[1]))
     # print positionsOfArrow.shape
+    geometricCenter, axis, angleOfArrow = cv2.fitEllipse(positionsOfArrow)
 
-    positionOfArrow, axis, angleOfArrow = cv2.fitEllipse(positionsOfArrow)
-    print positionOfArrow, angleOfArrow
+    # Barycenter
+    barycenter = np.mean(positionsOfArrow, axis=1)
+    geometricCenterBarycenterVector = barycenter - np.array(geometricCenter)
 
-    return positionOfArrow, angleOfArrow
+    verticalVector = np.array([0,-1])
+    angle = np.arctan2(np.linalg.norm(np.cross(geometricCenterBarycenterVector, verticalVector)), np.dot(geometricCenterBarycenterVector, verticalVector))
+    angle = (180*angle)/(np.pi)
+
+    print angle
+
+    
+
+
+
+    # print geometricCenter, angleOfArrow
+
+    return geometricCenter, angleOfArrow
 
 
 times = []
