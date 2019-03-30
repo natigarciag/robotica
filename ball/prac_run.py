@@ -19,10 +19,10 @@ clf = clasificador.Clasificador(datasetGenerator.shapeD)
 clf.train()
 
 # Inicio la captura de imagenes
-capture = cv2.VideoCapture('./videos/videoPelotaTenis.mp4')
-# capture = cv2.VideoCapture(0)
-capture.set(3, 320)
-capture.set(4, 240)
+# capture = cv2.VideoCapture('./videos/videoBola.mp4')
+capture = cv2.VideoCapture(0)
+capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
 # Ahora clasifico el video
 frame = 0
