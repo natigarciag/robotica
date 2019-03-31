@@ -143,6 +143,28 @@ def getArrowPosition(arrow):
 
     return geometricCenter, angleOfArrow
 
+def decideDirectionToGo(inputsOutputs,centralPointArrow, angleArrow):
+    if len(inputsOutputs) <= 1:
+        print 'Solo una entrada'
+        return
+        
+    inOuts = np.array(inputsOutputs)
+    centralImage = np.array([config.imageShape['height']/shrinkFactor,config.imageShape['width']/(shrinkFactor*2)])
+    
+    matrix = np.power(inOuts-centralImage,2)
+    
+    reduced = np.sum(matrix, axis = 0) # 0 para mantener el numero de salidas
+    inPut = np.argmin(reduced)
+    
+    print 'Voy a petar: ',inOuts
+
+    inPuted = inOuts[inPut]
+    
+    inOuts = np.delete(inOuts,inPut,axis=0)
+
+    print 'Salidas= ',inOuts
+    print 'Entrada= ',inPuted
+
 
 times = []
 while (capture.isOpened()):
@@ -177,6 +199,8 @@ while (capture.isOpened()):
 
     salidas = getSalidas(line)
     centerOfArrow, angleOfArrow = getArrowPosition(arrow)
+
+    decideDirectionToGo(salidas, centerOfArrow, angleOfArrow)
 
     cv2.imshow("Segmentacion Euclid",
                cv2.cvtColor(paleta[segImg], cv2.COLOR_RGB2BGR))
