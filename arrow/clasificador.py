@@ -32,13 +32,18 @@ class Clasificador():
 
 		# self.clf = NearestCentroid(metric='euclidean', shrink_threshold=None)
 		# self.clf = nb.GaussianNB()
-		self.clf = nn.MLPClassifier(hidden_layer_sizes=(3), activation='logistic', alpha=0.005, momentum=0.1, warm_start=True)
+		self.clf = nn.MLPClassifier(hidden_layer_sizes=(3), activation='logistic', alpha=0.05, momentum=0.1, verbose=True) #, early_stopping=True)
 		self.clf.fit(self.X_train, self.y_train)
 
 
 		print 'Accuracy is: ' + str(self.clf.score(self.X_test, self.y_test))
 
 		confusionMatrix = metrics.confusion_matrix(self.y_test, self.clf.predict(self.X_test))
+
+		sumConfMat = np.sum(confusionMatrix, axis=0)
+		if (sumConfMat[0] == 0 or sumConfMat[1] == 0 or sumConfMat[2] == 0):
+			print 'confusion matrix is confused. Will train again'
+			self.train()
 
 		print 'Confusion matrix:'
 		print confusionMatrix

@@ -9,6 +9,7 @@ import numpy as np
 import config
 import datasetGenerator
 import clasificador
+import math
 
 import time
 
@@ -21,11 +22,6 @@ capture = cv2.VideoCapture('./videos/video.mp4')
 # capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 # capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 # capture.set(cv2.CAP_PROP_SATURATION, 150)
-
-# Ahora clasifico el video
-frame = 0
-
-
 
 paleta = np.array([[0, 0, 255], [0, 255, 0], [255, 0, 0], [0, 0, 0]],
                   dtype='uint8')
@@ -46,6 +42,12 @@ segImg = np.empty((imageHeight,
 def getSalidas(line):
     height = len(line) - 1  #240
     width = len(line[0]) - 1  #320
+
+    line[0] = np.bitwise_and(line[0], line[1])
+    line[height] = np.bitwise_and(line[height], line[height - 1])
+
+    line[:,0] = np.bitwise_and(line[:,0],line[:,1])
+    line[:,width] = np.bitwise_and(line[:,width], line[:,width - 1])
 
     InsOuts = []
 
@@ -118,7 +120,6 @@ def getSalidas(line):
 
     # print 'Pixels', Result
     return Result
-
 
 def getArrowPosition(arrow):
     if (np.sum(arrow) == 0):
@@ -204,10 +205,8 @@ def decideEntrance(inputsOutputs):
 
     return inPuted, inOuts
 
-
 def decideExit(outputs, centerOfArrow, vectorOfArrow):
     # Consideramos outputs una lista de vectores en Numpy
-    # np.arctan2(np.linalg.norm(np.cross(geometricCenterBarycenterVector, verticalVector)), np.dot(geometricCenterBarycenterVector, verticalVector))
 
     # print 'hereEEEEEEE'
     # print outputs
@@ -222,26 +221,43 @@ def decideExit(outputs, centerOfArrow, vectorOfArrow):
     # for v in outVectors:
     #     pEsc = np.arccos((outVectors[0]*vectorOfArrow[0] + outVectors[1]*vectorOfArrow[1]) / np.linalg.norm(outVectors) * np.linalg.norm(vectorOfArrow))
     # pass
-    print 'angles', (angles * 180) / np.pi
+    # print 'angles', (angles * 180) / np.pi
 
     out = outputs[np.argmin(angles)]
     return out
 
+def chooseIndexOfMostCentralExit(exitsArray):
+    # exitsArray is an np array of exits. Choose the most "central top" one
+
+    centerOfImage = np.array([0,int(imageWidth/2)])
+    
+    matrix = np.power(exitsArray-centerOfImage,2)
+    reduced = np.sum(matrix, axis = 1)
+    indexOfOutput = np.argmin(reduced)
+    
+    return indexOfOutput
+
 times = []
+
+previousAngle = 0
+previousDistance = 0
+
 while (capture.isOpened()):
     beg = time.time()
 
     ret, im = capture.read()
     # outIm.write(im)
 
-    cv2.imshow('Real', im)
+    try:
+        cv2.imshow('Real', im)
+    except Exception as e:
+        break
+    
 
     # segmentation
     imHSV = im[((originalImageHeight - imageHeight)*shrinkFactor)::shrinkFactor, 0::shrinkFactor, :]
-    print imHSV.shape
     imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
     imHS = imHSV[:, :, (0, 1)]
-    print imHS.shape
 
     def predictRow(i):
         # print segImg
@@ -249,7 +265,7 @@ while (capture.isOpened()):
 
     [predictRow(i) for i in range(imHS.shape[0])]
 
-    paletada = paleta[segImg]
+    imageOnPaleta = paleta[segImg]
 
     arrow = np.zeros(segImg.shape, dtype='uint8')
     line = np.zeros(segImg.shape, dtype='uint8')
@@ -261,75 +277,82 @@ while (capture.isOpened()):
     arrow[segImg == 2] = 1
 
     # arrow = cv2.erode(arrow, None, dst=arrow, iterations=2)
-    # line = cv2.erode(line, None, dst=line, iterations=1)
 
     salidas = getSalidas(line)
     centerOfArrow, vectorOfArrow= getArrowPosition(arrow)
 
-
-    # cv2.rectangle(paletada,(int(begRect[1]), int(begRect[0])),(int(endRect[1]), int(endRect[0])),(0,255,0),3)
-    # paletada1, contours = cv2.findContours(arrow.astype('uint8')*255, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    # paletada1 = cv2.drawContours(paletada, contours, -1, (0, 255, 0), 3)
-
-    # if contours is not None or contours != [[[-1 -1 -1 -1]]]:
-    #     print contours
-
-    # print contours
-    # if contours != None:
-    #     for contour in contours:
-    #         paletada[contour] = (255,255,255)
-
     if (vectorOfArrow is not -1):
-        # print type(centerOfArrow), centerOfArrow
-        # print type(vectorOfArrow), vectorOfArrow
-        # cv2.ellipse(paletada,(int(centerOfArrow[1]), int(centerOfArrow[0])),(3,3),0,0,360,(255,0,255),-1)
         cv2.arrowedLine(
-            paletada, 
+            imageOnPaleta, 
             (int(centerOfArrow[1]), int(centerOfArrow[0])), 
             (int(vectorOfArrow[0][1]*20 + centerOfArrow[1]), int(vectorOfArrow[0][0]*20 + centerOfArrow[0])),
-            # (0,0),
             (0,0,255),
-            3)
-        
+            1)
         
     entrance, exits = decideEntrance(salidas)
 
     if (len(entrance) > 0):
-        # cv2.circle(paletada, entrance, 5)
-        cv2.ellipse(paletada,(int(entrance[1]), int(entrance[0])),(3,3),0,0,360,(0,255,255),-1)
+        # Since there's an entrance, show it on the image
+        cv2.ellipse(imageOnPaleta,(int(entrance[1]), int(entrance[0])),(3,3),0,0,360,(0,255,255),-1)
 
         if (len(exits) > 0):
             for uniqueExit in exits:
-                cv2.ellipse(paletada,(uniqueExit[1], uniqueExit[0]),(3,3),0,0,360,(255,0,255),-1)
+                cv2.ellipse(imageOnPaleta,(uniqueExit[1], uniqueExit[0]),(3,3),0,0,360,(255,0,255),-1)
             exitsArray = np.array(exits)
             if vectorOfArrow is not -1 and len(exits) > 1:
+                # When there's an arrow and many exits, decide from the arrow
                 selectedExit = decideExit(exitsArray, centerOfArrow, vectorOfArrow)
-                cv2.ellipse(paletada,(selectedExit[1], selectedExit[0]),(3,3),0,0,360,(0,120,120),-1)
             else:
-                selectedExit = exitsArray[0]
-                cv2.ellipse(paletada,(selectedExit[1], selectedExit[0]),(3,3),0,0,360,(0,120,120),-1)
-
-
-            # print 'entrance', entrance
+                # When there are many exits and no arrows, choose the most central one
+                selectedExit = exits[chooseIndexOfMostCentralExit(exitsArray)]
+                
+            cv2.ellipse(imageOnPaleta,(selectedExit[1], selectedExit[0]),(3,3),0,0,360,(0,120,120),-1)
             cv2.arrowedLine(
-                paletada, 
+                imageOnPaleta, 
                 (int(entrance[1]), int(entrance[0])), 
                 (int(selectedExit[1]), int(selectedExit[0])),
-                # (0,0),
-                (0,150,255),
-                3)
+                (255,255,0),
+                1)
 
+            consignaArray = np.array([selectedExit[1] - entrance[1], selectedExit[0] - entrance[0]])
+            distanceToEntrance = entrance[1] - int(imageWidth/2)
+            verticalVector = np.array([0, -1])
+            consignaAngle = np.arccos(np.dot(consignaArray, verticalVector) / (np.linalg.norm(consignaArray) * np.linalg.norm(verticalVector)))
+            if (consignaArray[0] < 0):
+                consignaAngle = -consignaAngle
+            consignaAngle = (consignaAngle * 180) / np.pi
 
+            # Calculating the consigna
+            rotationD = previousAngle - (consignaAngle*0.7 + distanceToEntrance*0.3)
+            rotationKd = 0.2
+            rotation = (consignaAngle*0.03 + distanceToEntrance*0.01)/(math.fabs(rotationD)*rotationKd)
+            speed = -0.5*math.fabs(rotation) + 1
 
-    cv2.imshow("Segmentacion Euclid",
-               cv2.cvtColor(paletada, cv2.COLOR_RGB2BGR))
+            if (rotation > 1):
+                rotation = 1
+            elif (rotation < -1):
+                rotation = -1
 
-    # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+            if (speed > 1):
+                speed = 1
+            elif (speed < 0):
+                speed = 0
+            
+            rotationRobot = -rotation
 
-    # times.append(time.time() - beg)
+            print round(speed, 1), round(rotationRobot,1)
 
-    # print np.mean(np.array(times))
+            previousAngle = consignaAngle
+            previousDistance = distanceToEntrance
+
+    end = time.time()
+    times.append(end - beg)
+
+    imgOnPaletaBGR = cv2.cvtColor(imageOnPaleta, cv2.COLOR_RGB2BGR)
+    cv2.imshow("Segmentacion Euclid", imgOnPaletaBGR)
 
     cv2.waitKey(1)
 
     # outSeg.write(cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+
+print 'mean time is', np.mean(np.array(times))
