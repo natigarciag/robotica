@@ -121,7 +121,7 @@ class BrainTestNavigator(
             else:
                 speed = 0.0
             
-        
+        # Previous solutions:
         # if ballPosition['x'] > self.targetX:
         #     # Go right
         #     turn = -1.5
