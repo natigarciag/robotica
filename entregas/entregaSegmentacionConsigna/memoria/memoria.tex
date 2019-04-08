@@ -141,7 +141,7 @@
 	\end{figure}
 
 \section{Descripción del cálculo de la consigna basado en la segmentación de la imagen}
-    De manera contraria a lo propuesto en la asignatura, no haremos una clasificación de situaciones entre flechas y líneas para determinar nuestra consigna de control. Lo hacemos porque creemos haber encontrado una solución más general al problema planteado dadas algunas asunciones, listadas a seguir:
+    De manera contraria a lo propuesto en la asignatura, no haremos una clasificación de situaciones entre flechas y líneas para determinar nuestra consigna de control. Lo hacemos porque creemos haber encontrado una solución más general al problema planteado dadas algunas asunciones, listadas a continuación:
 
     \begin{itemize}
         \item Las líneas que nos proporcionan control (es decir, como mínimo la línea que debemos seguir) son infinitas bajo la percepción del robot en cada momento. De esa manera, una línea siempre genera salida en algún borde de la imagen.
@@ -151,16 +151,16 @@
 
     Los principales puntos que deben ser observados sobre nuestra solución son los siguientes:
     \begin{itemize}
-        \item No haremos una clasificación de situaciones (i.e. cruce en X, curva, recta, ...). Usaremos un método alternativo por nosotros propuesto, que se describirá detalladamente a seguir.
-        \item Las flechas serán, para nosotros, equivalentes a cualquier otra figura roja. Y la separaremos de las demás mediante clasificación (se planteará dicha clasificación en la siguiente fase del desarrollo de este proyecto, pero tenemos muy claro que un clasificador, por complejo que tenga que ser, es capaz de separar flechas de las demás clases de forma fiable - en último caso, no descartamos el uso de Deep Learning y un extensivo dataset como suele ser necesario en ese caso para ello)
+        \item No haremos una clasificación de situaciones (i.e. cruce en X, curva, recta, ...). Usaremos un método alternativo por nosotros propuesto, que se describirá detalladamente a continuación.
+        \item Las flechas serán, para nosotros, equivalentes a cualquier otra figura roja. Y la separaremos de las demás mediante clasificación (se planteará dicha clasificación en la siguiente fase del desarrollo de este proyecto, pero tenemos muy claro que un clasificador, por complejo que tenga que ser, es capaz de separar flechas de las demás clases de forma fiable - en último caso, no descartamos el uso de Deep Learning y un extensivo dataset como suele ser necesario en este tipo de casos para ello)
     \end{itemize}
 
     Proponemos, por tanto, un método para el cálculo de la consigna desacoplado de situaciones ``estándar''. Según nuestras observaciones, nuestro método es suficientemente general, bajo nuestras asunciones, para permitir no necesitar saber si se trata de un cruce o una curva para navegar el robot adecuadamente por la sala.
 
-    Nuestro método se compone por algunos pasos. Comenzamos con una imagen segmentada en la que sabemos todos los puntos ocupados por líneas y, posiblemente, una figura (asumiremos en esta entrega que es una flecha).
+    Nuestro método está compuesto por una serie de pasos. Comenzamos con una imagen segmentada en la que conocemos todos los puntos ocupados por líneas y, posiblemente, una figura (asumiremos en esta entrega que es una flecha).
 
     \subsection{Detección de salidas de la línea de la imagen}
-        El primer paso es detectar las intersecciones entre las líneas y el borde de la imagen. Con eso, obtenemos un listado de salidas de la imagen. En nuestra implementación, solo retenemos a los puntos centrales de cada intersección (sus coordinadas). Además, en las esquinas, analizamos la intersección de líneas de cada borde adyacente para determinar si se trata de una misma línea o dos separardas. Con eso, no tenemos problemas con salidas que se expresan en más de un borde de la imagen. Como se puede ver en la Figura \ref{fig:consigna2}, obtenemos, a partir de una situación hipotética mostrada en la Figura \ref{fig:consigna1}, las salidas de la imagen.
+        El primer paso es detectar las intersecciones entre las líneas y el borde de la imagen. Con eso, obtenemos un listado de salidas de la imagen. En nuestra implementación, solo nos quedamos con los puntos centrales de cada intersección (sus coordenadas). Además, en las esquinas, analizamos la intersección de líneas de cada borde adyacente para determinar si se trata de una misma línea o dos separadas. Con eso, no tenemos problemas con salidas que se expresan en más de un borde de la imagen. Como se puede ver en la Figura \ref{fig:consigna2}, obtenemos, a partir de una situación hipotética mostrada en la Figura \ref{fig:consigna1}, las salidas de la imagen.
 
         \begin{figure}[]
             \centering
@@ -179,7 +179,7 @@
     \subsection{Elección de la entrada entre las salidas}
         El siguiente paso para la definición de la consigna de control del robot es la determinación de la entrada a partir de las salidas.
 
-        Dada la lista de coordinadas que corresponden a salidas en nuestro modelo, tenemos que encontrar aquella más cercana al origen del movimiento del robot. Esa será la entrada (punto de referencia de la línea por la que circulamos). En nuestro caso, definimos el origen de movimiento como el punto central inferior de la imagen.
+        Dada la lista de coordenadas que corresponden a salidas en nuestro modelo, tenemos que encontrar aquella más cercana al origen del movimiento del robot. Esa será la entrada (punto de referencia de la línea por la que circulamos). En nuestro caso, definimos el origen de movimiento como el punto central inferior de la imagen.
 
         En la Figura \ref{fig:consigna3}, podemos observar que la salida inferior es la más cercana al origen de movimiento del robot. Por tanto, es la entrada.
 
@@ -192,11 +192,11 @@
 
 
     \subsection{Elección de la salida a tomar}
-        \subsubsection{En existencia de solo una salida}
+        \subsubsection{En existencia de sólo una salida}
             En el caso de una salida, no hay que decidir. Simplemente, se salta al siguiente paso con la única salida existente.
 
         \subsubsection{En existencia de flecha} 
-            Para elegir la salida a tomar en caso de tener una flecha representada en la imagen segmentada, calculamos los ángulos entre el vector que define la flecha y los vectores que van desde el centro de la flecha hasta cada una de las salidas. El menor de estos ángulos corresponde a la salida a tomar. En la Figura \ref{fig:consigna5}, podemos observar esa elección.
+            Para elegir la salida a tomar en caso de tener una flecha representada en la imagen segmentada, calculamos los ángulos entre el vector que define la flecha y los vectores que van desde el centro de la flecha hasta cada una de las salidas. El menor de estos ángulos corresponde a la salida a tomar. En la práctica hemos comprobado que este método es bastante eficaz, y en la mayoría de casos estima correctamente cuál de las dos salidas es por la que debe ir el robot siguiendo correctamente la flecha. En la Figura \ref{fig:consigna5}, podemos observar esa elección.
 
             \begin{figure}[H]
                 \centering
@@ -242,7 +242,7 @@
 \section{Parte opcional. Seguimiento de pelota}
 	También realizamos la parte opcional de la práctica, referida al seguimiento de un objeto esférico por parte del robot, que va controlando su distancia a dicho objeto según los resultados del tamaño de la pelota relativo a la cámara del robot. Logramos adaptar el algoritmo de segmentación para poder obtener la pelota de un vídeo, y calculamos la manera de obtener la distancia relativa de la cámara a la pelota, en base a la explicación dada en clase. También hemos realizado una primera integración de esto con la parte de control, de tal manera que el robot se acerque a la pelota si la encuentra a lo lejos y se aleje si la tiene muy cerca. También implementamos la capacidad del robot de girar para intentar mantener la pelota en el centro de su campo de visión. Probamos el algoritmo en forma de “Brain” en el robot del laboratorio de robótica, logrando unos resultados interesantes. Incluimos en la carpeta de entrega un video de demostración del seguimiento junto con la segmentación hecha por el mismo programa.
 
-	Sobre nuestras pruebas en el laboratorio, incluimos en la carpeta de entrega un timelapse grabado con el móvil de uno de los integrantes del grupo guiando el robot por la sala. Además, incluimos dos videos, uno con la imagen original y otro de la segmentación, hechos en directo por el robot en una situación similar a la mostrada en el time lapse (hemos perdido la referencia de si se trata de la misma ejecución o no). Se muestra a seguir una captura de pantalla del video mencionado, tanto de la imagen original (Figura \ref{fig:pelota1}) como de la segmentación (Figura \ref{fig:pelota2}).
+	Sobre nuestras pruebas en el laboratorio, incluimos en la carpeta de entrega un timelapse grabado con el móvil de uno de los integrantes del grupo guiando el robot por la sala. Además, incluimos dos videos, uno con la imagen original y otro de la segmentación, hechos en directo por el robot en una situación similar a la mostrada en el time lapse (hemos perdido la referencia de si se trata de la misma ejecución o no). Se muestra a continuación una captura de pantalla del video mencionado, tanto de la imagen original (Figura \ref{fig:pelota1}) como de la segmentación (Figura \ref{fig:pelota2}).
 
 	\begin{figure}[H]
 	    \centering
@@ -262,7 +262,7 @@
 
 	Pensamos, en conclusión, que nuestro algoritmo de segmentación obtiene buenos resultados con las pruebas llevadas a cabo. Es cierto que podría ser más rápido (especialmente en nuestra primera versión, de la primera entrega de esta parte), pero hemos tratado de encontrar un equilibrio entre resultados y tiempos de ejecución que nos permita emplear este algoritmo una vez usemos el robot real.
 	
-	Cuánto a mejoras pendientes, pensamos que diversos puntos requieren nuestra atención. El principal de ellos es que la segmentación todavía está lejos de ser perfecta. Eso se debe principalmente a que un píxel, en su individualidad, no es capaz de expresar del todo bien la entidad a que pertenece. Pensamos utilizar esos datos de segmentación para entrenar un clasificador basado en contexto, que como mínimo pueda fijarse en los píxeles alrededor del que intenta clasificar. Una posibilidad un poco lejos dada la potencia de cálculo que tiene el robot sería utilizar un segmentador mediante una red de neuronas artificiales con capas convolucionales. Según nuestro análisis, sería necesaria una capa convolucional al principio y probablemente algunas de pooling o convolución más. Estimamos un total de 3 o 4 capas, lo que ya sería demasiado para el robot que disponemos, además que exigiría operar con bibliotecas bastante complejas (aunque es de nuestro conocimiento Tensorflow con Keras). Además, eso nos requeriría hacer un dataset mucho más extenso. Intentaremos, sin embargo, hacer esta mejora en el futuro.
+	En cuanto a mejoras pendientes, pensamos que diversos puntos requieren nuestra atención. El principal de ellos es que la segmentación todavía está lejos de ser perfecta. Eso se debe principalmente a que un píxel, en su individualidad, no es capaz de expresar del todo bien la entidad a que pertenece. Pensamos utilizar esos datos de segmentación para entrenar un clasificador basado en contexto, que como mínimo pueda fijarse en los píxeles alrededor del que intenta clasificar. Una posibilidad un poco lejana, dada la potencia de cálculo que tiene el robot, sería utilizar un segmentador mediante una red de neuronas artificiales con capas convolucionales. Según nuestro análisis, sería necesaria una capa convolucional al principio y probablemente algunas de pooling o convolución más. Estimamos un total de 3 o 4 capas, lo que ya sería demasiado para el robot que disponemos, además que exigiría operar con bibliotecas bastante complejas (aunque tenemos algo de conocimiento de algunas, como Tensorflow con Keras). Además, eso nos requeriría hacer un dataset mucho más extenso. Intentaremos, sin embargo, hacer esta mejora en el futuro.
 
 
 
