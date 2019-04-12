@@ -64,7 +64,7 @@
 \date{Universidad Politécnica de Madrid}
 \begin{document}
 
-\frontPageEC{24 de marzo de 2019}{Entrega 2 - Segmentación}
+\frontPageEC{08 de abril de 2019}{Entrega Final - Segmentación y Cálculo de Consigna}
 \thispagestyle{empty}
 
 \newpage
@@ -104,7 +104,11 @@
 	Se inicia la captura de imágenes, en base a un vídeo concreto (aunque puede realizarse sobre un vídeo en directo desde una cámara). Cada imagen recibida se reduce en un factor de 4, vertical y horizontalmente (no hemos considerado el trabajar con imágenes algo pequeñas un problema para el futuro, pues el tamaño sigue siendo considerable para poder ver correctamente la línea y cada marca), y en un bucle, se van leyendo las imágenes. Se pasa cada imagen al formato HSV, y se obtiene el H y el S. Se clasifica con predict cada pixel de la imagen con el clasificador, y se muestra por pantalla la imagen segmentada. Entre medias se realizan pruebas del tiempo tardado, usadas para el apartado correspondiente de esta memoria.
 
 \section{Observaciones acerca del límite de upload de Moodle}
-	En todos los casos, por el tamaño máximo de la entrega en Moodle, incluimos todos los vídeos convertidos en .m4v (video codec h264) y altamente comprimidos. La calidad es defínitivamente mala, pero al menos podemos incluir varios vídeos de esa manera. A su vez, incluimos el dataset utilizado para entrenar el algoritmo. De esa forma, el evaluador puede ejecutar el programa y observar su comportamiento.
+    \paragraph{Videos}
+    En todos los casos, por el tamaño máximo de la entrega en Moodle, incluimos todos los vídeos convertidos en .m4v (video codec h264) y altamente comprimidos. La calidad es defínitivamente mala, pero al menos podemos incluir varios vídeos de esa manera. A su vez, incluimos el dataset utilizado para entrenar el algoritmo. De esa forma, el evaluador puede ejecutar el programa y observar su comportamiento.
+    
+    \paragraph{Datasets}
+    Además, no incluimos los datasets utilizados debido a que pesan mucho y no podemos incluirlos en la entrega.
 
 \section{Resultado del algoritmo de segmentación}
 	% imagenes representativas y tiempos de ejecucion aqui
@@ -155,7 +159,7 @@
         \item Las flechas serán, para nosotros, equivalentes a cualquier otra figura roja. Y la separaremos de las demás mediante clasificación (se planteará dicha clasificación en la siguiente fase del desarrollo de este proyecto, pero tenemos muy claro que un clasificador, por complejo que tenga que ser, es capaz de separar flechas de las demás clases de forma fiable - en último caso, no descartamos el uso de Deep Learning y un extensivo dataset como suele ser necesario en este tipo de casos para ello)
     \end{itemize}
 
-    Proponemos, por tanto, un método para el cálculo de la consigna desacoplado de situaciones ``estándar''. Según nuestras observaciones, nuestro método es suficientemente general, bajo nuestras asunciones, para permitir no necesitar saber si se trata de un cruce o una curva para navegar el robot adecuadamente por la sala.
+    Proponemos, por tanto, un método para el cálculo de la consigna desacoplado de situaciones ``estándar''. Según nuestras observaciones, nuestro método es suficientemente general, bajo nuestras asunciones, para permitir no necesitar saber si se trata de un cruce o una curva para navegar el robot adecuadamente por la sala. 
 
     Nuestro método está compuesto por una serie de pasos. Comenzamos con una imagen segmentada en la que conocemos todos los puntos ocupados por líneas y, posiblemente, una figura (asumiremos en esta entrega que es una flecha).
 
@@ -238,6 +242,11 @@
         $$avance = -0.5 \times |giro| + 1$$
 
         Para el cálculo del giro utilizamos la consigna con valor real y derivada. Para la de avance aprovechamos el efecto de la derivada en el giro también para el avance. Los valores fijos, como $0.2$ en $giro$ y $0.5$ en avance son parámetros. De hecho, el primer de ellos es el $Kd$ de la consigna de giro. En todo caso, esos parámetros todavía no están perfectamente optimizados para el robot en la sala. Sin embargo, presentan valores plausibles para el cálculo de las consignas de control.
+
+        \paragraph{Demostración}
+        Para visualizar el cálculo de la consigna, incluimos un \textbf{video} denominado \textit{``calculoDeConsigna.mp4''} en el directorio de videos de esta entrega. En la terminal que se ve, se muestran dos valores a la vez. El de la izquierda corresponde a la consigna de avance del robot, mientras que el de la derecha es la consigna de giro del robot.
+
+        Probablemente por algún tipo de incompatibilidad en codecs, recomendamos el uso del VLC player para visualizar nuestro video en Windows. En Linux no tuvimos ningún problema con el Totem Video Player (default de Ubuntu).
 
 \section{Parte opcional. Seguimiento de pelota}
 	También realizamos la parte opcional de la práctica, referida al seguimiento de un objeto esférico por parte del robot, que va controlando su distancia a dicho objeto según los resultados del tamaño de la pelota relativo a la cámara del robot. Logramos adaptar el algoritmo de segmentación para poder obtener la pelota de un vídeo, y calculamos la manera de obtener la distancia relativa de la cámara a la pelota, en base a la explicación dada en clase. También hemos realizado una primera integración de esto con la parte de control, de tal manera que el robot se acerque a la pelota si la encuentra a lo lejos y se aleje si la tiene muy cerca. También implementamos la capacidad del robot de girar para intentar mantener la pelota en el centro de su campo de visión. Probamos el algoritmo en forma de “Brain” en el robot del laboratorio de robótica, logrando unos resultados interesantes. Incluimos en la carpeta de entrega un video de demostración del seguimiento junto con la segmentación hecha por el mismo programa.

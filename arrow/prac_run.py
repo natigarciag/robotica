@@ -129,15 +129,9 @@ def getArrowPosition(arrow):
     if (positionsOfArrow[0].shape[0] < 5):
         return (0, 0), -1
     positionsOfArrow = np.dstack((positionsOfArrow[0], positionsOfArrow[1]))
-    # print positionsOfArrow.shape
-    # geometricCenter, axis, angleOfArrow = cv2.fitEllipse(positionsOfArrow)
-    # (x, y), (width, height), rect_angle = cv2.minAreaRect(positionsOfArrow)
     rectMin = cv2.minAreaRect(positionsOfArrow)
     rect = cv2.boxPoints(rectMin)
 
-    # print rect
-    # print rect[:,0]
-    # print np.max(rect[:,0])
     if (np.min(rect[:,0]) < 0):
         return (0,0),-1
     if (np.max(rect[:,0]) > imageHeight):
@@ -147,81 +141,46 @@ def getArrowPosition(arrow):
     if (np.max(rect[:,1]) > imageWidth):
         return (0,0),-1
     
-    if (
-        # width*height > 360 or 
-        rectMin[1][0]*rectMin[1][1] < 2):
+    if (rectMin[1][0]*rectMin[1][1] < 2):
         return (0,0),-1
-    # print cv2.boxPoints(rect)
-    # geometricCenter = (x + width/2,y + height/2)
-    # geometricCenter = np.array(geometricCenter)
     geometricCenter = np.mean(rect, axis=0)
     if (geometricCenter[0] > 0.9 * (imageHeight)):
         return (0,0),-1
-    # print geometricCenter
-
 
     # Barycenter
     barycenter = np.mean(positionsOfArrow, axis=1)
-    # print barycenter, geometricCenter
     geometricCenterBarycenterVector = barycenter - geometricCenter
-    # print geometricCenterBarycenterVector
-
-    # verticalVector = np.array([0,-1])
-    # angle = np.arctan2(np.linalg.norm(np.cross(geometricCenterBarycenterVector, verticalVector)), np.dot(geometricCenterBarycenterVector, verticalVector))
-    # angle = (180*angle)/(np.pi)
-    # print angle
-    # print geometricCenter, angleOfArrow
 
     return geometricCenter, geometricCenterBarycenterVector
 
 def decideEntrance(inputsOutputs):
     if len(inputsOutputs) <= 1:
-        # print 'Solo una entrada'
         return [], []
         
     inOuts = np.array(inputsOutputs)
-    # print 'inouts is', inOuts
     centerOfImage = np.array([imageHeight,int(imageWidth/2)])
     
     matrix = np.power(inOuts-centerOfImage,2)
-
-    # print 'difference is', inOuts - centerOfImage
-
-    # print 'matrix is', np.power(inOuts-centerOfImage,2)
     
     reduced = np.sum(matrix, axis = 1) # 1 para mantener el numero de salidas
 
-    # print 'reduced is', reduced
     inPut = np.argmin(reduced)
     
-    # print 'Voy a petar: ',inOuts
 
     inPuted = inOuts[inPut]
     
     inOuts = np.delete(inOuts,inPut,axis=0)
-
-    # print 'Salidas= ',inOuts
-    # print 'Entrada= ',inPuted
 
     return inPuted, inOuts
 
 def decideExit(outputs, centerOfArrow, vectorOfArrow):
     # Consideramos outputs una lista de vectores en Numpy
 
-    # print 'hereEEEEEEE'
-    # print outputs
-    # print centerOfArrow
-    # print vectorOfArrow
-
     arrow = vectorOfArrow[0]
 
 
     outVectors = outputs - centerOfArrow
     angles = np.arccos(np.dot(outVectors, arrow) / (np.linalg.norm(outVectors) * np.linalg.norm(arrow)))
-    # for v in outVectors:
-    #     pEsc = np.arccos((outVectors[0]*vectorOfArrow[0] + outVectors[1]*vectorOfArrow[1]) / np.linalg.norm(outVectors) * np.linalg.norm(vectorOfArrow))
-    # pass
-    # print 'angles', (angles * 180) / np.pi
 
     out = outputs[np.argmin(angles)]
     return out
@@ -275,8 +234,6 @@ while (capture.isOpened()):
     # 3 - nothing - not used
     line[segImg == 0] = 1
     arrow[segImg == 2] = 1
-
-    # arrow = cv2.erode(arrow, None, dst=arrow, iterations=2)
 
     salidas = getSalidas(line)
     centerOfArrow, vectorOfArrow= getArrowPosition(arrow)

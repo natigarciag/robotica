@@ -11,3 +11,4 @@ imageShape = {
 }
 
 datasetName = 'Entrega'
+# datasetName = 'Manzana'

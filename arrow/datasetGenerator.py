@@ -48,7 +48,7 @@ dataset = np.memmap('./datasets/dataset' + config.datasetName + '.driver', dtype
 
 
 
-# shapeD = (61983, 3) # good for Alpera
+# shapeD = (15359, 3) # good for Alpera
 # dataset = np.memmap('./datasets/datasetManzana.driver', dtype=np.uint8, mode='r', shape=shapeD)
 
 

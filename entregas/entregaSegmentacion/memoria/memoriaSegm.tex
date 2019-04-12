@@ -64,7 +64,7 @@
 \date{Universidad Politécnica de Madrid}
 \begin{document}
 
-\frontPageEC{24 de marzo de 2019}{Segmentación}
+\frontPageEC{24 de marzo de 2019}{Entrega 2 - Segmentación}
 \thispagestyle{empty}
 
 \newpage
@@ -103,6 +103,8 @@
 
 	Se inicia la captura de imágenes, en base a un vídeo concreto (aunque puede realizarse sobre un vídeo en directo desde una cámara). Cada imagen recibida se reduce en un factor de 4, vertical y horizontalmente (no hemos considerado el trabajar con imágenes algo pequeñas un problema para el futuro, pues el tamaño sigue siendo considerable para poder ver correctamente la línea y cada marca), y en un bucle, se van leyendo las imágenes. Se pasa cada imagen al formato HSV, y se obtiene el H y el S. Se clasifica con predict cada pixel de la imagen con el clasificador, y se muestra por pantalla la imagen segmentada. Entre medias se realizan pruebas del tiempo tardado, usadas para el apartado correspondiente de esta memoria.
 
+\section{Observaciones acerca del límite de upload de Moodle}
+	En todos los casos, por el tamaño máximo de la entrega en Moodle, incluimos todos los vídeos convertidos en .m4v (video codec h264) y altamente comprimidos. La calidad es defínitivamente mala, pero al menos podemos incluir varios vídeos de esa manera. A su vez, incluimos el dataset utilizado para entrenar el algoritmo. De esa forma, el evaluador puede ejecutar el programa y observar su comportamiento.
 
 \section{Resultado. Algoritmo de segmentación}
 	% imagenes representativas y tiempos de ejecucion aqui
