@@ -77,36 +77,22 @@ medDatos = np.concatenate((medDatos,np.array([medCruz])),axis=0)
 medDatos = np.concatenate((medDatos,np.array([medCabina])),axis=0)
 medDatos = np.concatenate((medDatos,np.array([medEscalera])),axis=0)
 
-
-labels = np.unique(datos[:,-1])
-X = datos[:,:-1]
-y = datos[:,-1]
-
-#print 
-covDatos = np.array([ np.linalg.inv(np.cov(X[y == label])) for label in labels ]) 
-
-print covDatos[0].shape
-
-
-
 loo = LeaveOneOut()
-for train_index, test_index in loo.split(medDatos):
+for train_index, test_index in loo.split(datos):
 	#print("TRAIN:", train_index, "TEST:", test_index)
-	X_train, X_test = medDatos[:,:-1][train_index], medDatos[:,:-1][test_index]
-	y_train, y_test = medDatos[:,-1][train_index], medDatos[:,-1][test_index]
+	X_train, X_test = datos[:,:-1][train_index], datos[:,:-1][test_index]
+	y_train, y_test = datos[:,-1][train_index], datos[:,-1][test_index]
 	#print(X_train, X_test, y_train, y_test)
 
-	#vi = np.linalg.inv(np.cov(X_train[0]))
-	#print(np.cov(X_train).shape)
-	print distance.mahalanobis(X_train[0],X_test,covDatos[0])
+	#print(X_train.shape)
+	#print(X_test)
+	distEuc = [np.linalg.norm(medDatos[i,:-1]-X_test) for i in range(len(medDatos))]
+	#distEuc = np.dot(np.concatenate((X_train,np.ones((len(X_train[:,1]),1))),axis=1),medDatos[:,:-1].T)
 	
+	#print np.argmin(distEuc)
+	#print(y_test)
 	
-
-	neigh = KNeighborsClassifier(n_neighbors=1)
-	neigh.fit(X_train, y_train) 
-	res.append([neigh.predict(X_test) == y_test]) 
+	res.append([np.argmin(distEuc) == (y_test)]) 
 
 
 print(np.sum(res)*100.0 / len(res))
-
-
