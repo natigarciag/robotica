@@ -13,6 +13,7 @@ import math
 import os
 import time
 
+'''
 def predictRow(i):
       	# print segImg
         segImg[i] = clf.predict(imHS[i])
@@ -53,21 +54,23 @@ def segmentar(im):
     	arrow[segImg == 2] = 1
 
 	return arrow
+'''
 
 skip_pixels_at_top = 0
 all_moments = []
-directory = "images/flecha"
+directory = "images/escalera"
 
 clf = clasificador.Clasificador(datasetGenerator.shapeD)
 clf.train()
 # Itero para todas las 100 imagenes
 for filename in os.listdir(directory):
-	print "beep"
  	fullname = os.path.join(directory, filename)
  	# Leo imagen
  	img = cv2.imread(fullname)
 
- 	# Invoco a segmentador y calculo etiquetas
+	
+
+ 	
  	#labels = segmenter.segment(img[skip_pixels_at_top:, :])
 
 	
@@ -75,21 +78,33 @@ for filename in os.listdir(directory):
 	paleta = np.array([[0, 0, 255], [0, 255, 0], [255, 0, 0], [0, 0, 0]],
                   dtype='uint8')
 
-	shrinkFactor = 4
+	shrinkFactor = 1
 	originalImageHeight = (config.imageShape['height'] / shrinkFactor)
-	imageHeight = int(originalImageHeight*0.5)
+	imageHeight = int(originalImageHeight*0.8)
 	imageWidth = int(config.imageShape['width'] / shrinkFactor)
 
 	segImg = np.empty((imageHeight,imageWidth),dtype='uint8')
 
+	
 
 	imHSV = img[((originalImageHeight - imageHeight)*shrinkFactor)::shrinkFactor, 0::shrinkFactor, :]
     	imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
     	imHS = imHSV[:, :, (0, 1)]
 
+	#cv2.imshow('imHS',imHSV)
+	#cv2.waitKey()
+	
+	def predictRow(i):
+        	# print segImg
+        	segImg[i] = clf.predict(imHS[i])
+
 	
 
     	[predictRow(i) for i in range(imHS.shape[0])]
+
+
+	#cv2.imshow('segIMG',segImg)
+	#cv2.waitKey()
 
     	imageOnPaleta = paleta[segImg]
 
@@ -101,6 +116,11 @@ for filename in os.listdir(directory):
     	# 3 - nothing - not used
     	line[segImg == 0] = 1
     	arrow[segImg == 2] = 1
+
+	#print(len(arrow[arrow==1]))
+	#print(len(arrow)*len(arrow[0]))
+	#cv2.imshow('arrow',arrow)
+	#cv2.waitKey()
 
 	im = arrow
  	#palette = np.array([[0, 0, 0], [0, 0, 255], [255, 0, 0], [0, 255, 0]], dtype=np.uint8)
@@ -117,7 +137,7 @@ for filename in os.listdir(directory):
  	moments = cv2.HuMoments(cv2.moments(im)).flatten()
  	all_moments.append(moments)
 	# Cuando ha recorrido los 100 ficheros, guardo el dataset de esta clase.
-np.savetxt('data_flecha.txt', all_moments)
+np.savetxt('data_escalera.txt', all_moments)
 
 
 

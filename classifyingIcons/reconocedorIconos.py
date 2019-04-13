@@ -13,6 +13,9 @@ import math
 import os
 import time
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import LeaveOneOut
+from sklearn.neighbors import DistanceMetric
+from scipy.spatial import distance
 
 
 datosCaballero = np.loadtxt('data_caballero.txt', delimiter=" ")
@@ -35,19 +38,75 @@ datos = np.concatenate((datos,datosCruz),axis=0)
 datos = np.concatenate((datos,datosCabina),axis=0)
 datos = np.concatenate((datos,datosEscalera),axis=0)
 
+print("1NN:")
 
 np.random.shuffle(datos)
 datosTrain = datos[0:400]
 datosTest = datos[400:]
 
+res = []
 
-neigh = KNeighborsClassifier(n_neighbors=1)
-neigh.fit(datosTrain[:,:-1], datosTrain[:,-1]) 
+loo = LeaveOneOut()
+for train_index, test_index in loo.split(datos):
+	#print("TRAIN:", train_index, "TEST:", test_index)
+	X_train, X_test = datos[:,:-1][train_index], datos[:,:-1][test_index]
+	y_train, y_test = datos[:,-1][train_index], datos[:,-1][test_index]
+	#print(X_train, X_test, y_train, y_test)
 
 
-print("1NN:")
-res = [neigh.predict(datosTest[:,:-1]) == datosTest[:,-1]]
+	neigh = KNeighborsClassifier(n_neighbors=1)
+	neigh.fit(X_train, y_train) 
+	res.append([neigh.predict(X_test) == y_test]) 
 
-print(np.sum(res)*100.0 / len(datosTest))
+
+print(np.sum(res)*100.0 / len(res))
+
+
+print("Mahalanobis:")
+
+res = []
+
+medCaballero = np.mean(datosCaballero,0)
+medFlecha = np.mean(datosFlecha,0)
+medCruz = np.mean(datosCruz,0)
+medCabina = np.mean(datosCabina,0)
+medEscalera = np.mean(datosEscalera,0)
+
+medDatos = np.c_[medCaballero,medFlecha].T
+medDatos = np.concatenate((medDatos,np.array([medCruz])),axis=0)
+medDatos = np.concatenate((medDatos,np.array([medCabina])),axis=0)
+medDatos = np.concatenate((medDatos,np.array([medEscalera])),axis=0)
+
+
+labels = np.unique(datos[:,-1])
+X = datos[:,:-1]
+y = datos[:,-1]
+
+#print 
+covDatos = np.array([ np.linalg.inv(np.cov(X[y == label])) for label in labels ]) 
+
+print covDatos[0].shape
+
+
+
+loo = LeaveOneOut()
+for train_index, test_index in loo.split(medDatos):
+	#print("TRAIN:", train_index, "TEST:", test_index)
+	X_train, X_test = medDatos[:,:-1][train_index], medDatos[:,:-1][test_index]
+	y_train, y_test = medDatos[:,-1][train_index], medDatos[:,-1][test_index]
+	#print(X_train, X_test, y_train, y_test)
+
+	#vi = np.linalg.inv(np.cov(X_train[0]))
+	#print(np.cov(X_train).shape)
+	print distance.mahalanobis(X_train[0],X_test,covDatos[0])
+	
+	
+
+	neigh = KNeighborsClassifier(n_neighbors=1)
+	neigh.fit(X_train, y_train) 
+	res.append([neigh.predict(X_test) == y_test]) 
+
+
+print(np.sum(res)*100.0 / len(res))
 
 
