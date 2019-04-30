@@ -10,4 +10,4 @@ imageShape = {
     'height': 240
 }
 
-datasetName = 'Entrega'
+datasetName = 'Manzana'
