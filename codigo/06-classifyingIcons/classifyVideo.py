@@ -105,7 +105,7 @@ segmenter.train()
 
 
 # capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
-capture = cv2.VideoCapture('./videos/circuito_EDIT.mp4')
+capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
 
 shrinkFactor = 1
@@ -117,69 +117,94 @@ segImg = np.empty((imageHeight,
                    imageWidth),
                   dtype='uint8')
 
-times = []
-while (capture.isOpened()):
-    beg = time.time()
-    
-    ret, im = capture.read()
-    # cv2.imshow('Real', im)
-
-    # segmentation
-    imHSV = im[((originalImageHeight - imageHeight)*shrinkFactor)::shrinkFactor, 0::shrinkFactor, :]
-    # imHSV = im[0::shrinkFactor,0::shrinkFactor,:]
-    # times.append(time.time())
-    imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
-    # times.append(time.time())
-    imHS = imHSV[:,:,(0,1)]
-    # times.append(time.time())
-
-    def predictRow(i):
-        segImg[i] = segmenter.predict(imHS[i])
-
-    [predictRow(i) for i in range(imHS.shape[0])]
-
-    # imageOnPaleta = paleta[segImg]
-
-    arrow = np.zeros(segImg.shape, dtype='uint8')
-    line = np.zeros(segImg.shape, dtype='uint8')
-    # 0 - line
-    # 1 - floor
-    # 2 - symbols
-    # 3 - nothing - not used
-    line[segImg == 0] = 1
-    arrow[segImg == 2] = 1
-    arrow = cv2.erode(arrow, None, dst=arrow, iterations=1)
-    # arrow = cv2.dilate(arrow, None, dst=arrow, iterations=1)
-
-    # print(np.sum(arrow))
-
-    namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
-
-    cv2.imshow('name', cv2.cvtColor(paleta[segImg], cv2.COLOR_RGB2BGR))
-    cv2.imshow('arrows', arrow*255)
-
-    if(np.sum(arrow) > 200):
-        moments = cv2.HuMoments(cv2.moments(arrow)).flatten()
-        print(moments)
-        predictedShape = symbolClassifier.predict(np.array([moments]))
-        print(predictedShape, namesOfTheShapes[int(predictedShape[0])])
-        # print(predictedShape)
+def touchingEdges(segmentation, threshold):
+    if (np.sum(segmentation[0]) > threshold or np.sum(segmentation[segmentation.shape[0]-1]) > threshold or np.sum(segmentation[:,0]) > threshold or np.sum(segmentation[:,segmentation.shape[1]-1]) > threshold):
+        return True
     else:
-        print('na de na')
+        return False
 
-    # times.append(time.time())
-    # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+
+times = []
+try:
+    while (capture.isOpened()):
+        beg = time.time()
+        
+        ret, im = capture.read()
+        # cv2.imshow('Real', im)
+
+        # segmentation
+        imHSV = im[((originalImageHeight - imageHeight)*shrinkFactor)::shrinkFactor, 0::shrinkFactor, :]
+        # imHSV = im[0::shrinkFactor,0::shrinkFactor,:]
+        # times.append(time.time())
+        imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
+        # times.append(time.time())
+        imHS = imHSV[:,:,(0,1)]
+        # times.append(time.time())
+
+        def predictRow(i):
+            segImg[i] = segmenter.predict(imHS[i])
+
+        [predictRow(i) for i in range(imHS.shape[0])]
+
+        # imageOnPaleta = paleta[segImg]
+
+        arrow = np.zeros(segImg.shape, dtype='uint8')
+        line = np.zeros(segImg.shape, dtype='uint8')
+        # 0 - line
+        # 1 - floor
+        # 2 - symbols
+        # 3 - nothing - not used
+        line[segImg == 0] = 1
+        arrow[segImg == 2] = 1
+        arrow = cv2.erode(arrow, None, dst=arrow, iterations=1)
+        # arrow = cv2.dilate(arrow, None, dst=arrow, iterations=1)
+
+        # print(np.sum(arrow))
+
+        namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
+
+        # cv2.imshow('name', cv2.cvtColor(paleta[segImg], cv2.COLOR_RGB2BGR))
+        showImg = np.copy(segImg)
+        showImg[showImg == 2] = 1
+        showImg[arrow == 1] = 2
+        cv2.imshow('name', cv2.cvtColor(paleta[showImg], cv2.COLOR_RGB2BGR))
+
+
+
+        cv2.imshow('arrows', arrow*255)
+
+        touchesEdges = touchingEdges(arrow, 1)
+
+        if(np.sum(arrow) > int(200 / (shrinkFactor*shrinkFactor))):
+            if (not touchesEdges):
+                moments = cv2.HuMoments(cv2.moments(arrow)).flatten()
+                # print(moments)
+                predictedShape = symbolClassifier.predict(np.array([moments]))
+                # print(predictedShape, namesOfTheShapes[int(predictedShape[0])])
+                # print(predictedShape)
+                print(namesOfTheShapes[int(predictedShape[0])])
+            else:
+                print('touches edges')
+        else:
+            print('nothing')
+
+        # times.append(time.time())
+        # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
+        
+        # times.append(time.time())
+
+        times.append(time.time() - beg)
+        
+        # differences = []
+        # for time1 in times:
+        #     differences.append(time1 - beg)
+
+        # print np.mean(np.array(times))
     
-    # times.append(time.time())
-
-    times.append(time.time() - beg)
+        cv2.waitKey(1)
     
-    # differences = []
-    # for time1 in times:
-    #     differences.append(time1 - beg)
-
-    # print np.mean(np.array(times))
- 
-    cv2.waitKey(1)
-
-print(times)
+except TypeError as a:
+    pass
+finally:
+    # print(times)
+    print(np.mean(np.array(times)), 'was the time per frame')
