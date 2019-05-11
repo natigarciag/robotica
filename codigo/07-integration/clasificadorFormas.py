@@ -21,8 +21,8 @@ import sklearn.ensemble as ens
 import sklearn as sk
 
 
-symbolClassifier = sk.tree.DecisionTreeClassifier(criterion='entropy', min_samples_leaf=15)
-# symbolClassifier = KNeighborsClassifier(n_neighbors=1)
+# symbolClassifier = sk.tree.DecisionTreeClassifier(criterion='entropy', min_samples_leaf=15)
+symbolClassifier = KNeighborsClassifier(n_neighbors=1)
 # symbolClassifier = sk.naive_bayes.GaussianNB()
 
 def train(datos):

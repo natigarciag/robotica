@@ -11,3 +11,4 @@ imageShape = {
 }
 
 datasetName = 'Manzana'
+# datasetName = 'highContrast'

@@ -37,20 +37,14 @@ import config
 # dataset[:] = hsExpanded[hsExpanded[:,2] != 3]
 # dataset.flush()
 
-
-# shapeD  = (20663, 3)
-# dataset = np.memmap('./datasets/dataset' + config.datasetName + '.driver', dtype=np.uint8, mode='r', shape=shapeD)
-
-
-
-
-
-
-
-
-shapeD = (61983, 3) # good for Alpera
-dataset = np.memmap('./datasets/datasetManzana.driver', dtype=np.uint8, mode='r', shape=shapeD)
-
+if config.datasetName == 'highContrast':
+    shapeD  = (22293, 3)
+elif config.datasetName == 'Manzana':
+    shapeD = (61983, 3) # good for Alpera
+else:
+    shapeD  = (20663, 3)
+    
+dataset = np.memmap('./datasets/dataset' + config.datasetName + '.driver', dtype=np.uint8, mode='r', shape=shapeD)
 
 
 

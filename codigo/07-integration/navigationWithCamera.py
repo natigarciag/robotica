@@ -12,31 +12,7 @@ import clasificador
 import math
 
 import time
-
-clf = clasificador.Clasificador(datasetGenerator.shapeD)
-clf.train()
-
-# Inicio la captura de imagenes
-
-import cameraCapture as captureType
-
-capture = captureType.capture
-
-paleta = np.array([[0, 0, 255], [0, 255, 0], [255, 0, 0], [0, 0, 0]],
-                  dtype='uint8')
-
-shrinkFactor = 1
-originalImageHeight = (config.imageShape['height'] / shrinkFactor)
-imageHeight = int(originalImageHeight*0.7)
-imageWidth = int(config.imageShape['width'] / shrinkFactor)
-
-segImg = np.empty((imageHeight,
-                   imageWidth),
-                  dtype='uint8')
-
-# outIm = cv2.VideoWriter('./videos/cruce4salidas.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
-# outSeg = cv2.VideoWriter('./videos/demoSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
-
+import setup
 
 def getSalidas(line):
     height = len(line) - 1  #240
