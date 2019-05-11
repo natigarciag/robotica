@@ -22,6 +22,15 @@ import sklearn as sk
 import sklearn.metrics as metrics
 import sklearn.ensemble as ens
 
+showRawImage = True
+rawImageShrinkFactor = 1
+showSegmentedImage = True
+segmentedImageShrinkFactor = 1
+showArrowSegmentation = True
+arrowSegmentationShrinkFactor = 1
+showLineSegmentation = False
+lineSegmentationShrinkFactor = 1
+
 numClasses = 4
 
 datosCaballero = np.loadtxt('data_caballero.txt', delimiter=" ")
@@ -44,64 +53,17 @@ datos = np.concatenate((datos,datosCabina),axis=0)
 datos = np.concatenate((datos,datosEscalera),axis=0)
 datos = np.concatenate((datos,datosFlecha),axis=0)
 
+namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
+
 np.random.shuffle(datos)
 res = []
 
-loo = KFold(n_splits=20, shuffle=True)
-# loo = LeaveOneOut()
-for train_index, test_index in loo.split(datos):
-	X_train, X_test = datos[:,:-1][train_index], datos[:,:-1][test_index]
-	y_train, y_test = datos[:,-1][train_index], datos[:,-1][test_index]
-
-	# print(X_train.shape)
-
-	# classifier = nn.MLPClassifier(hidden_layer_sizes=(5), activation='logistic', alpha=0.08, momentum=0.1, verbose=True) #, early_stopping=True)
-	# classifier = sk.naive_bayes.GaussianNB()
-	# classifier = sk.svm.SVC(gamma='auto')
-	# classifier = KNeighborsClassifier(n_neighbors=10)
-	classifier = sk.tree.DecisionTreeClassifier(criterion='entropy', max_depth=3, min_samples_leaf=15)
-	
-	trained = False
-	while (not trained):
-		classifier.fit(X_train, y_train)
-
-		prediction = classifier.predict(X_test)
-
-		confusionMatrix = metrics.confusion_matrix(y_test, prediction)
-		# print(confusionMatrix)
-		# sumConfMat = np.sum(confusionMatrix, axis=0)
-		# if (sumConfMat[0] == 0 or sumConfMat[1] == 0 or sumConfMat[2] == 0 or sumConfMat[3] == 0):
-		# 	print 'confusion matrix is confused. Will train again'
-		# 	classifier.fit(X_train, y_train)
-		# else:
-		trained = True
-		res.append(metrics.accuracy_score(y_test, prediction))	
-
-
-
-symbolClassifier = sk.tree.DecisionTreeClassifier(criterion='entropy', min_samples_leaf=15)
-# symbolClassifier = KNeighborsClassifier(n_neighbors=1)
-# symbolClassifier = sk.naive_bayes.GaussianNB()
-trained = False
-while (not trained):
-    X_train, y_train = datos[:,:-1], datos[:,-1]
-    symbolClassifier.fit(X_train, y_train)
-
-    prediction = symbolClassifier.predict(X_train)
-
-    confusionMatrix = metrics.confusion_matrix(y_train, prediction)
-    print(confusionMatrix)
-    # sumConfMat = np.sum(confusionMatrix, axis=0)
-    # if (sumConfMat[0] == 0 or sumConfMat[1] == 0 or sumConfMat[2] == 0 or sumConfMat[3] == 0):
-    # 	print 'confusion matrix is confused. Will train again'
-    # 	symbolClassifier.fit(X_train, y_train)
-    # else:
-    trained = True
-
+import clasificadorFormas
+clasificadorFormas.train(datos)
+symbolClassifier = clasificadorFormas.symbolClassifier
 
 segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
 segmenter.train()
-
 
 
 # capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
@@ -130,24 +92,20 @@ try:
         beg = time.time()
         
         ret, im = capture.read()
-        # cv2.imshow('Real', im)
+        if showRawImage:
+            cv2.imshow('raw image', im[0::rawImageShrinkFactor,0::rawImageShrinkFactor,:])
 
-        # segmentation
+        # prepare segmentation
         imHSV = im[((originalImageHeight - imageHeight)*shrinkFactor)::shrinkFactor, 0::shrinkFactor, :]
-        # imHSV = im[0::shrinkFactor,0::shrinkFactor,:]
-        # times.append(time.time())
         imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
-        # times.append(time.time())
         imHS = imHSV[:,:,(0,1)]
-        # times.append(time.time())
-
+        
+        # perform segmentation
         def predictRow(i):
             segImg[i] = segmenter.predict(imHS[i])
-
         [predictRow(i) for i in range(imHS.shape[0])]
 
-        # imageOnPaleta = paleta[segImg]
-
+        # separate symbols from lines
         arrow = np.zeros(segImg.shape, dtype='uint8')
         line = np.zeros(segImg.shape, dtype='uint8')
         # 0 - line
@@ -157,21 +115,19 @@ try:
         line[segImg == 0] = 1
         arrow[segImg == 2] = 1
         arrow = cv2.erode(arrow, None, dst=arrow, iterations=1)
-        # arrow = cv2.dilate(arrow, None, dst=arrow, iterations=1)
-
-        # print(np.sum(arrow))
-
-        namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
-
-        # cv2.imshow('name', cv2.cvtColor(paleta[segImg], cv2.COLOR_RGB2BGR))
+        
+        # if showSegmentedImage:
+        #     cv2.imshow('segmented image', cv2.cvtColor(paleta[segImg], cv2.COLOR_RGB2BGR))
         showImg = np.copy(segImg)
         showImg[showImg == 2] = 1
         showImg[arrow == 1] = 2
-        cv2.imshow('name', cv2.cvtColor(paleta[showImg], cv2.COLOR_RGB2BGR))
+        if showSegmentedImage:
+            cv2.imshow('segmented treated image', cv2.cvtColor(paleta[showImg][0::segmentedImageShrinkFactor,0::segmentedImageShrinkFactor,:], cv2.COLOR_RGB2BGR))
 
-
-
-        cv2.imshow('arrows', arrow*255)
+        if showArrowSegmentation:
+            cv2.imshow('arrows', (arrow*255)[0::arrowSegmentationShrinkFactor,0::arrowSegmentationShrinkFactor])
+        if showLineSegmentation:
+            cv2.imshow('line', (line*255)[0::lineSegmentationShrinkFactor,0::lineSegmentationShrinkFactor])
 
         touchesEdges = touchingEdges(arrow, 1)
 
@@ -188,23 +144,12 @@ try:
         else:
             print('nothing')
 
-        # times.append(time.time())
-        # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
-        
-        # times.append(time.time())
-
         times.append(time.time() - beg)
-        
-        # differences = []
-        # for time1 in times:
-        #     differences.append(time1 - beg)
 
-        # print np.mean(np.array(times))
-    
         cv2.waitKey(1)
     
 except TypeError as a:
-    pass
+    print(a)
 finally:
     # print(times)
     print(np.mean(np.array(times)), 'was the time per frame')
