@@ -16,6 +16,7 @@ import sklearn.neural_network as nn
 import sklearn as sk
 import sklearn.metrics as metrics
 import sklearn.ensemble as ens
+from joblib import dump, load
 
 import cameraCapture as captureType
 capture = captureType.capture
@@ -51,6 +52,19 @@ symbolClassifier = clasificadorFormas.symbolClassifier
 
 segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
 segmenter.train()
+
+#GUARDAR MODELO JOBLIB
+dump(symbolClassifier, './iconsModel.joblib',compress=True) 
+
+#CARGAR MODELO JOBLIB
+#symbolClassifier = load('./iconsModel.joblib') 
+
+#GUARDAR MODELO JOBLIB
+dump(segmenter, './segmentationModel.joblib',compress=True) 
+
+#CARGAR MODELO JOBLIB
+#segmenter = load('./segmentationModel.joblib') 
+
 
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
 
