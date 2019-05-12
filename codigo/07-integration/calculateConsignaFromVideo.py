@@ -224,12 +224,27 @@ def calculateConsignaFromVector(vector, distanceToEntrance, previousData):
 
     print(consignaAngle)
 
-    # if (distanceToEntrance > 0 and consignaAngle > 0)
+    # Define Kd depending on the necessity
+    if ((distanceToEntrance > 0 and consignaAngle > 0) or (distanceToEntrance < 0 and consignaAngle < 0)):
+        # rotate a lot more than normal
+        rotationKd = 0.1
+    elif ((distanceToEntrance > 0 and consignaAngle < 0) or (distanceToEntrance < 0 and consignaAngle > 0)):
+        # go as normal
+        rotationKd = 0.2
+    else:
+        rotationKd = 0.25
+
+    # if consignaAngle > 0:
+    #     # go right
+
+    # else:
+    #     # go left
 
     # Calculating the consigna
-    rotationD = previousData['angle'] - (consignaAngle*0.7 + distanceToEntrance*0.3)
-    rotationKd = 0.2
-    rotation = (consignaAngle*0.03 + distanceToEntrance*0.01)/(math.fabs(rotationD)*rotationKd)
+    rotationD = previousData['angle'] - consignaAngle
+    signalKeeper = ((consignaAngle // consignaAngle) if consignaAngle != 0 else 1)
+    print('angle and distance', consignaAngle, distanceToEntrance, rotationD, rotationKd)
+    rotation = signalKeeper*math.fabs((consignaAngle*0.003 + distanceToEntrance*0.001)/(math.fabs(rotationD)*rotationKd))
     speed = -0.5*math.fabs(rotation) + 1
 
     if (rotation > 1):
