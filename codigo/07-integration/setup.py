@@ -46,24 +46,18 @@ namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flec
 np.random.shuffle(datos)
 res = []
 
-import clasificadorFormas
-clasificadorFormas.train(datos)
-symbolClassifier = clasificadorFormas.symbolClassifier
+# Load symbol classifier
+# import clasificadorFormas
+# clasificadorFormas.train(datos)
+# symbolClassifier = clasificadorFormas.symbolClassifier
+# dump(symbolClassifier, './iconsModel.joblib',compress=True)
+symbolClassifier = load('./iconsModel.joblib')
 
-segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
-segmenter.train()
-
-#GUARDAR MODELO JOBLIB
-dump(symbolClassifier, './iconsModel.joblib',compress=True) 
-
-#CARGAR MODELO JOBLIB
-#symbolClassifier = load('./iconsModel.joblib') 
-
-#GUARDAR MODELO JOBLIB
-dump(segmenter, './segmentationModel.joblib',compress=True) 
-
-#CARGAR MODELO JOBLIB
-#segmenter = load('./segmentationModel.joblib') 
+# Load segmenter
+# segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
+# segmenter.train()
+# dump(segmenter, './segmentationModel' + config.datasetName + '.joblib',compress=True)
+segmenter = load('./segmentationModel' + config.datasetName + '.joblib')
 
 
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
