@@ -298,9 +298,9 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, se
     else:
         turn = signalKeeper * (math.pow(distanceToExit,2)*a + distanceToExit*b)
 
-    derivativeTerm = previousData['distance'] - distanceToExitPercentage
-    if derivativeTerm != 0:
-        turn = turn / (math.fabs(derivativeTerm) * Kd)
+    # derivativeTerm = previousData['distance'] - distanceToExitPercentage
+    # if derivativeTerm != 0:
+    #     turn = turn / (math.fabs(derivativeTerm) * Kd)
 
     previousData['distance'] = distanceToExitPercentage
 
@@ -340,20 +340,14 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
         
         if entrance[0] < selectedExit[0]:
             # vector is most likely inverted
-            print("inverted????", entrance, selectedExit)    
+            # print("inverted????", entrance, selectedExit)
             vector = np.array([entrance[0] - selectedExit[0], entrance[1] - selectedExit[1]])
         else:
             vector = np.array([selectedExit[0] - entrance[0], selectedExit[1] - entrance[1]])
-        # if entrance[0] > selectedExit[0]:
-        #     print('inverted?????')
 
-        
         distanceToEntrance = entrance[1] - setup.imageWidth//2
-        # speed, rotation = calculateConsignaFromVector(vector, distanceToEntrance, previousData, setup, entrance)
 
         distanceToExitPercentage = (selectedExit[1] + 0.0 - setup.imageWidth/2)/setup.imageWidth
-        # print distanceToExitPercentage
-
 
         speed, rotation = calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, setup)
     else:
@@ -398,6 +392,15 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
                         (int(selectedExit[1]), int(selectedExit[0])),
                         (255,255,0),
                         1)
+        
+        if speed != None:
+            text = 'speed: ' + str(round(speed,4))
+            cv2.putText(imageOnPaleta,text,(10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.4,(255,255,255),1,cv2.LINE_AA)
+            text = 'turn: ' + str(round(rotation,4))
+            cv2.putText(imageOnPaleta,text,(10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.4,(255,255,255),1,cv2.LINE_AA)
+            text = 'distance: ' + str(round(distanceToExitPercentage,4))
+            cv2.putText(imageOnPaleta,text,(10,40), cv2.FONT_HERSHEY_SIMPLEX, 0.4,(255,255,255),1,cv2.LINE_AA)
+            
 
     return speed, rotation, len(exits)
 
