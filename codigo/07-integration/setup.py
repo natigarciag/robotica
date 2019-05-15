@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 import config
-import datasetGenerator
+# import datasetGenerator
 import clasificador
 import math
 import os
@@ -35,33 +35,29 @@ import cameraCapture as captureType
 capture = captureType.capture
 
 
-
-datosCaballero = np.loadtxt('data_caballero.txt', delimiter=" ")
-datosFlecha = np.loadtxt('data_flecha.txt', delimiter=" ")
-datosCruz = np.loadtxt('data_cruz.txt', delimiter=" ")
-datosCabina = np.loadtxt('data_cabina.txt', delimiter=" ")
-datosEscalera = np.loadtxt('data_escalera.txt', delimiter=" ")
-
-
-datosCaballero = np.c_[ datosCaballero, np.zeros(len(datosCaballero)) ] 
-datosEscalera = np.c_[ datosEscalera, np.ones(len(datosEscalera)) ] 
-datosCruz = np.c_[ datosCruz, np.full((len(datosCruz),1),2) ] 
-datosCabina = np.c_[ datosCabina, np.full((len(datosCabina),1),3) ] 
-datosFlecha = np.c_[ datosFlecha, np.full((len(datosFlecha),1),4) ] 
+# # Load symbol classifier
+# datosCaballero = np.loadtxt('data_caballero.txt', delimiter=" ")
+# datosFlecha = np.loadtxt('data_flecha.txt', delimiter=" ")
+# datosCruz = np.loadtxt('data_cruz.txt', delimiter=" ")
+# datosCabina = np.loadtxt('data_cabina.txt', delimiter=" ")
+# datosEscalera = np.loadtxt('data_escalera.txt', delimiter=" ")
 
 
-datos = np.concatenate((datosCaballero,datosCruz),axis=0)
-datos = np.concatenate((datos,datosCruz),axis=0)
-datos = np.concatenate((datos,datosCabina),axis=0)
-datos = np.concatenate((datos,datosEscalera),axis=0)
-datos = np.concatenate((datos,datosFlecha),axis=0)
+# datosCaballero = np.c_[ datosCaballero, np.zeros(len(datosCaballero)) ] 
+# datosEscalera = np.c_[ datosEscalera, np.ones(len(datosEscalera)) ] 
+# datosCruz = np.c_[ datosCruz, np.full((len(datosCruz),1),2) ] 
+# datosCabina = np.c_[ datosCabina, np.full((len(datosCabina),1),3) ] 
+# datosFlecha = np.c_[ datosFlecha, np.full((len(datosFlecha),1),4) ] 
 
-namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
 
-np.random.shuffle(datos)
-res = []
+# datos = np.concatenate((datosCaballero,datosCruz),axis=0)
+# datos = np.concatenate((datos,datosCruz),axis=0)
+# datos = np.concatenate((datos,datosCabina),axis=0)
+# datos = np.concatenate((datos,datosEscalera),axis=0)
+# datos = np.concatenate((datos,datosFlecha),axis=0)
 
-# Load symbol classifier
+# np.random.shuffle(datos)
+
 # import clasificadorFormas
 # clasificadorFormas.train(datos)
 # symbolClassifier = clasificadorFormas.symbolClassifier
@@ -69,11 +65,13 @@ res = []
 symbolClassifier = load('./iconsModel.joblib')
 
 # Load segmenter
+# import datasetGenerator
 # segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
 # segmenter.train()
 # dump(segmenter, './segmentationModel' + config.datasetName + '.joblib',compress=True)
 segmenter = load('./segmentationModel' + config.datasetName + '.joblib')
 
+namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
 
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
 
