@@ -77,7 +77,7 @@ segmenter = load('./segmentationModel' + config.datasetName + '.joblib')
 
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
 
-shrinkFactor = 1
+shrinkFactor = 1 # 2 funciona relativamente bien
 originalImageHeight = config.imageShape['height'] // shrinkFactor
 imageHeight = int(originalImageHeight*0.7)
 imageWidth = config.imageShape['width'] // shrinkFactor
