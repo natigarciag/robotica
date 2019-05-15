@@ -32,6 +32,8 @@ try:
         shapeName = consignaFromSegmentation.predictShapeIfShape(arrow, setup)
         if (not (shapeName == None or shapeName == 'touches edges' or shapeName == 'nothing')) and numberOfExits <= 1:
             print(shapeName)
+            cv2.putText(imageOnPaleta,shapeName,(10,160//setup.segmentedImageShrinkFactor), cv2.FONT_HERSHEY_SIMPLEX, 0.4,(255,255,255),1,cv2.LINE_AA)
+            
 
         end = time.time()
         times.append(end - beg)
