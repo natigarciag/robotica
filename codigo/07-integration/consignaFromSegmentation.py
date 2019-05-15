@@ -276,27 +276,19 @@ def calculateConsignaFromVector(vector, distanceToEntrance, previousData, setup,
 
     return speed, rotation
 
-    # # print vector
-    # distance = vector[1]/2 + entrance[1] - (setup.imageWidth/2)
-    # print distance
 
-    # if (distance < 0):
-    #     turn = 0.35
-    # else:
-    #     turn = -0.35
 
-    # return 0.2, turn
+# parameter calculation
+da = 0.2
+d1 = 0.45
+phi = 0.5
 
+b = (phi - (math.pow(da,2)/math.pow(d1,2)))/(da - (math.pow(da,2)/d1))
+a = (1 - b*d1)/math.pow(d1,2)
+
+Kd = 2.5
 
 def calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, setup):
-    # parameter calculation
-    da = 0.2
-    d1 = 0.45
-    phi = 0.5
-
-    b = (phi - (math.pow(da,2)/math.pow(d1,2)))/(da - (math.pow(da,2)/d1))
-    a = (1 - b*d1)/math.pow(d1,2)
-
     signalKeeper = (1.0 if distanceToExitPercentage > 0 else (-1.0 if distanceToExitPercentage < 0 else 0.0))
     distanceToExit = (distanceToExitPercentage if distanceToExitPercentage > 0 else -distanceToExitPercentage)
 
@@ -304,11 +296,32 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, se
     if distanceToExit > d1:
         turn = signalKeeper*1
     else:
-        turn = signalKeeper * math.pow(distanceToExit,2)*a + distanceToExit*b
-    
-    print a,b,turn,distanceToExit
+        turn = signalKeeper * (math.pow(distanceToExit,2)*a + distanceToExit*b)
 
-    return 0.2, turn
+    derivativeTerm = previousData['distance'] - distanceToExitPercentage
+    if derivativeTerm != 0:
+        turn = turn / (math.fabs(derivativeTerm) * Kd)
+
+    previousData['distance'] = distanceToExitPercentage
+
+    speed = calculateForwardSpeedFromTurn(turn)
+
+    if speed > 1:
+        speed = 1
+    elif speed < 0:
+        speed = 0
+
+    
+    # print a,b,turn,distanceToExit,speed
+
+    turn = -turn
+    print turn, speed
+
+    return speed, turn
+
+
+def calculateForwardSpeedFromTurn(turn):
+    return -0.5*math.fabs(turn) + 1
 
 def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup):
     salidas = getSalidas(line, setup)
