@@ -17,9 +17,24 @@ import sklearn as sk
 import sklearn.metrics as metrics
 import sklearn.ensemble as ens
 from joblib import dump, load
+import datetime
+
+
+showRawImage = False
+rawImageShrinkFactor = 1
+showSegmentedImage = True
+segmentedImageShrinkFactor = 1
+showArrowSegmentation = False
+arrowSegmentationShrinkFactor = 1
+showLineSegmentation = False
+lineSegmentationShrinkFactor = 1
+drawAndRecordSchematicSegmentation = True
+
 
 import cameraCapture as captureType
 capture = captureType.capture
+
+
 
 datosCaballero = np.loadtxt('data_caballero.txt', delimiter=" ")
 datosFlecha = np.loadtxt('data_flecha.txt', delimiter=" ")
@@ -63,13 +78,18 @@ segmenter = load('./segmentationModel' + config.datasetName + '.joblib')
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
 
 shrinkFactor = 1
-originalImageHeight = (config.imageShape['height'] / shrinkFactor)
+originalImageHeight = config.imageShape['height'] // shrinkFactor
 imageHeight = int(originalImageHeight*0.7)
-imageWidth = int(config.imageShape['width'] / shrinkFactor)
+imageWidth = config.imageShape['width'] // shrinkFactor
 
 segImg = np.empty((imageHeight,
                    imageWidth),
                   dtype='uint8')
+
+if drawAndRecordSchematicSegmentation:
+    date = datetime.datetime.now()
+    schematicsVideoOutput = cv2.VideoWriter('./schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (imageWidth, imageHeight))
+    print schematicsVideoOutput
 
 def touchingEdges(segmentation, threshold):
     if (np.sum(segmentation[0]) > threshold or np.sum(segmentation[segmentation.shape[0]-1]) > threshold or np.sum(segmentation[:,0]) > threshold or np.sum(segmentation[:,segmentation.shape[1]-1]) > threshold):

@@ -5,7 +5,7 @@ import cv2
 capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
 # capture = cv2.VideoCapture('./videos/cruce4salidas.mp4')
 
-# capture = cv2.VideoCapture(1)
+# capture = cv2.VideoCapture(0)
 # capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 # capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 # capture.set(cv2.CAP_PROP_CONTRAST, 200)
