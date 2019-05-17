@@ -1,14 +1,18 @@
 import cv2
 
-# capture = cv2.VideoCapture('./videos/video.mp4')
-# capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
-capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
+# # capture = cv2.VideoCapture('./videos/video.mp4')
+# # capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
+# # capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
 # capture = cv2.VideoCapture('./videos/cruce4salidas.mp4')
 
-# capture = cv2.VideoCapture(0)
-# capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-# capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-# capture.set(cv2.CAP_PROP_CONTRAST, 200)
+for i in range(20):
+    capture = cv2.VideoCapture(i)
+    status, im = capture.read()
+    if (status == True):
+        break
+capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+capture.set(cv2.CAP_PROP_CONTRAST, 200)
 
 # Que no funcionaron/no ayudaron:
 # capture.set(cv2.CAP_PROP_SATURATION, 150)

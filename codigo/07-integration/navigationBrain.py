@@ -296,21 +296,24 @@ class BrainTestNavigator(
         speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup)
         # print speed, rotation
         if speed != None and rotation != None:
-            self.speed = speed
-            self.rotation = rotation
-            self.move(self.speed, self.rotation)
+            # print 'sending command', speed, rotation
+            self.move(speed, rotation)
         else:
             self.move(0,0)
 
         shapeName = consignaFromSegmentation.predictShapeIfShape(arrow, setup)
         if (not (shapeName == None or shapeName == 'touches edges' or shapeName == 'nothing')) and numberOfExits <= 1:
             print(shapeName)
+            cv2.putText(imageOnPaleta,shapeName,(10,160//setup.segmentedImageShrinkFactor), cv2.FONT_HERSHEY_SIMPLEX, 0.4,(255,255,255),1,cv2.LINE_AA)
 
         # # Changes of state
         # self.transitionState(arrow, line, shapeName, numberOfExits)
 
         # # Follow state
         # self.states[self.state]['action'](arrow, line, shapeName, numberOfExits)
+
+        if setup.drawAndRecordSchematicSegmentation:
+            setup.schematicsVideoOutput.write(cv2.cvtColor(imageOnPaleta, cv2.COLOR_RGB2BGR))
     
 def INIT(engine):
     assert (engine.robot.requires("range-sensor") and engine.robot.requires("continuous-movement"))

@@ -8,8 +8,8 @@ import math
 import os
 import time
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import LeaveOneOut
-from sklearn.model_selection import KFold
+# from sklearn.model_selection import LeaveOneOut
+# from sklearn.model_selection import KFold
 from sklearn.neighbors import DistanceMetric
 from scipy.spatial import distance
 import sklearn.neural_network as nn

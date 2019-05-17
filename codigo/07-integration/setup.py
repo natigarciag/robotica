@@ -8,8 +8,8 @@ import math
 import os
 import time
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import LeaveOneOut
-from sklearn.model_selection import KFold
+# from sklearn.model_selection import LeaveOneOut
+# from sklearn.model_selection import KFold
 from sklearn.neighbors import DistanceMetric
 from scipy.spatial import distance
 import sklearn.neural_network as nn
@@ -62,14 +62,14 @@ capture = captureType.capture
 # clasificadorFormas.train(datos)
 # symbolClassifier = clasificadorFormas.symbolClassifier
 # dump(symbolClassifier, './iconsModel.joblib',compress=True)
-symbolClassifier = load('./iconsModel.joblib')
+symbolClassifier = load('./iconsModelPioneer.joblib')
 
-# Load segmenter
+# # Load segmenter
 # import datasetGenerator
 # segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
 # segmenter.train()
 # dump(segmenter, './segmentationModel' + config.datasetName + '.joblib',compress=True)
-segmenter = load('./segmentationModel' + config.datasetName + '.joblib')
+segmenter = load('./segmentationModel' + config.datasetName + 'Pioneer.joblib')
 
 namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
 
@@ -86,7 +86,7 @@ segImg = np.empty((imageHeight,
 
 if drawAndRecordSchematicSegmentation:
     date = datetime.datetime.now()
-    schematicsVideoOutput = cv2.VideoWriter('./schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (imageWidth, imageHeight))
+    schematicsVideoOutput = cv2.VideoWriter('./schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
     print schematicsVideoOutput
 
 def touchingEdges(segmentation, threshold):

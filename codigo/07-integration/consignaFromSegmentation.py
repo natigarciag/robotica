@@ -286,9 +286,9 @@ phi = 0.5
 b = (phi - (math.pow(da,2)/math.pow(d1,2)))/(da - (math.pow(da,2)/d1))
 a = (1 - b*d1)/math.pow(d1,2)
 
-Kd = 2.5
+Kd = 25
 
-def calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, setup):
+def calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousData, setup):
     signalKeeper = (1.0 if distanceToExitPercentage > 0 else (-1.0 if distanceToExitPercentage < 0 else 0.0))
     distanceToExit = (distanceToExitPercentage if distanceToExitPercentage > 0 else -distanceToExitPercentage)
 
@@ -298,16 +298,20 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, se
     else:
         turn = signalKeeper * (math.pow(distanceToExit,2)*a + distanceToExit*b)
 
-    # derivativeTerm = previousData['distance'] - distanceToExitPercentage
-    # if derivativeTerm != 0:
-    #     turn = turn / (math.fabs(derivativeTerm) * Kd)
+    derivativeTerm = previousData['distance'] - distanceToExitPercentage
+    # print 'derivative term', derivativeTerm
+    if derivativeTerm > 0.3:
+        turn = turn / (math.fabs(derivativeTerm) * Kd)
+
+    if np.abs(angle) > 45:
+        turn = signalKeeper * 10
 
     previousData['distance'] = distanceToExitPercentage
 
     speed = calculateForwardSpeedFromTurn(turn)
 
-    if speed > 1:
-        speed = 1
+    if speed > 0.5:
+        speed = 0.5
     elif speed < 0:
         speed = 0
 
@@ -315,13 +319,13 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, se
     # print a,b,turn,distanceToExit,speed
 
     turn = -turn
-    print turn, speed
+    print speed, turn
 
     return speed, turn
 
 
 def calculateForwardSpeedFromTurn(turn):
-    return -0.5*math.fabs(turn) + 1
+    return -0.9*math.fabs(turn) + 1
 
 def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup):
     salidas = getSalidas(line, setup)
@@ -349,7 +353,20 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
 
         distanceToExitPercentage = (selectedExit[1] + 0.0 - setup.imageWidth/2)/setup.imageWidth
 
-        speed, rotation = calculateConsignaFromExitDistance(distanceToExitPercentage, previousData, setup)
+
+        consignaArray = vector
+        # print(vector)
+        verticalVector = np.array([-1, 0])
+        angle = np.arccos(np.dot(vector, verticalVector) / (np.linalg.norm(vector) * np.linalg.norm(verticalVector)))
+        if (vector[1] < 0):
+            angle = -angle
+        angle = (angle * 180) / np.pi
+        if (vector[0] > 0):
+            angle = 180 - angle
+
+        print 'angle is:', angle
+
+        speed, rotation = calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousData, setup)
     else:
         speed, rotation = None, None
 
