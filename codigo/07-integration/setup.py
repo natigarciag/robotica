@@ -77,7 +77,7 @@ paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')
 
 shrinkFactor = 1 # 2 funciona relativamente bien
 originalImageHeight = config.imageShape['height'] // shrinkFactor
-imageHeight = int(originalImageHeight*0.7)
+imageHeight = originalImageHeight #int(originalImageHeight*0.7)
 imageWidth = config.imageShape['width'] // shrinkFactor
 
 segImg = np.empty((imageHeight,

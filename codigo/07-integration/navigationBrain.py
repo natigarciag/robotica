@@ -10,6 +10,7 @@ import setup
 #import imutils
 import segmentLinesAndSymbolsFromImage
 import consignaFromSegmentation
+import datetime
 
 
 # Autores:
@@ -53,15 +54,24 @@ class BrainTestNavigator(
 
         self.linearKp = 0.08
         self.linearKd = 0.05
+        self.followArrowProcedureFinished = False
+        self.followArrowProcedureCounter = 0
+        self.followArrowObject = {
+            'fixed': False,
+            'mostRotation': 0
+        }
 
-        self.state = 'findBall'
+        self.state = 'followLine'
 
         self.states = {
-            'findBall': {
+            'findLine': {
                 'action': self.waitStopped
             },
-            'followBall': {
-                'action': self.followBall
+            'followLine': {
+                'action': self.followLine
+            },
+            'followArrow': {
+                'action': self.followArrow
             }
         }
 
@@ -72,228 +82,48 @@ class BrainTestNavigator(
             "distance": 0
         }
 
-    def waitStopped(self, hasBall, ballDistance, ballPosition):
+    def waitStopped(self, arrow, line, entrance, exits, imageOnPaleta):
         self.move(0.0, 0.0)
 
-    def followBall(self, hasBall, ballDistance, ballPosition):
-        angularDeviation = (ballPosition['x'] - self.targetX)/self.imageWidth
-
-        # linearDeviation = ballDistance - self.targetDistance
-        # print angularDeviation
-
-        turn = 0.0
-        speed = 0.6
-        if (hasBall):
-            # if math.fabs(angularDeviation) > 0.2:
-            # turn = -self.Kp*angularDeviation
-            diffAngularDev = math.fabs(angularDeviation) - math.fabs(self.prevAngularDeviation)
-            if diffAngularDev == 0.0:
-                diffAngularDev = 1.1
-            turn = (-self.angularKp*angularDeviation)/math.fabs(self.angularKd*diffAngularDev)
-            # self.Kp += 0.1
-            # print "Kp is:", self.Kp
-            # print "turn is:", turn
-            if (turn < -2.0): 
-                turn = -2.0
-            elif (turn > 2.0):
-                turn = 2.0
-            # else:
-            #     turn = 0.0
-
-            # if math.fabs(linearDeviation) > 5.0:
-            #     diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
-            #     if diffLinearDeviation == 0.0:
-            #         diffLinearDeviation = 5.0
-            #     speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
-            #     # speed = (self.linearKp*linearDeviation)
-            #     # print speed
-            #     if (speed < -1.0): 
-            #         speed = -1.0
-            #     elif (speed > 1.0):
-            #         speed = 1.0
-            # else:
-            #     speed = 0.0
-            
+    def followArrow(self, arrow, line, entrance, exits, imageOnPaleta):
+        speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
+        if rotation == None or speed == None:
+            self.state = 'findLine'
+        elif np.abs(rotation) > np.abs(self.followArrowObject['mostRotation']):
+            print 'changing rotation to', rotation
+            self.followArrowObject['mostRotation'] = rotation
         
-        # if ballPosition['x'] > self.targetX:
-        #     # Go right
-        #     turn = -1.5
-        # elif ballPosition['x'] < self.targetX:
-        #     # go left
-        #     turn = 1.5
-
-        # speed = 0.0
-        # turn = 0.0
-        # if ballDistance < self.targetDistance:
-        #     speed = -0.7
-        # elif ballDistance > self.targetDistance:
-        #     speed = 0.7
+        if setup.touchingEdges(arrow, 25) or self.followArrowProcedureCounter < 1:
+            positionsOfRed = np.where(arrow == 1)
+            centralRedPosition = np.mean(positionsOfRed, axis=1)
+            print centralRedPosition
+            centralHorizontalPoint = (centralRedPosition[1] - (setup.imageWidth/2))/setup.imageWidth
+            signalKeeper = (1.0 if centralHorizontalPoint > 0 else (-1.0 if centralHorizontalPoint < 0 else 0.0))
+            turnPar = (centralHorizontalPoint if centralHorizontalPoint > 0 else -centralHorizontalPoint)
 
 
-        self.prevAngularDeviation = angularDeviation
-
-        self.move(speed, turn)
-
-    def followLine(self, hasBall, ballDistance, ballPosition):
-        if (hasLine):
-            Kp = 0.6*math.fabs(lineDistance)
-            Kd = (math.fabs(lineDistance) - math.fabs(self.prevDistance))
-            # print "Kd sale: ",Kd
-
-            # self.Ki = self.Ki + lineDistance
-            if Kd == 0:
-                turnSpeed = self.previousTurn
-            else:
-                turnSpeed =  5*((Kp * lineDistance)/((searchRange - math.fabs(Kd)) * searchRange))
-            
-            turnSpeed = min(turnSpeed, 1)
-
-            # The sharper the turn, the slower the robot advances forward
-            # forwardVelocity = min(((searchRange - math.fabs(Kd)) * searchRange) / 180, 1)
-            parNormalizacion = 100
-            parA = 3.5
-            parB = -2.8
-            # Kd = Kd*5
-            forwardVelocity = max(min(parA*((searchRange - 0.99*math.fabs(Kd)) * searchRange)**2 / (parNormalizacion**2) + parB*((searchRange - 0.99*math.fabs(Kd)) * searchRange) / (parNormalizacion), 1),0)
-
-            maxSpeed = 1.0 if (front > 1.0 and left > 0.5 and right > 0.5) else 0.2
-            if forwardVelocity > maxSpeed:
-                forwardVelocity = maxSpeed
-
-            self.previousTurn = turnSpeed
-
-            # print "vel:",forwardVelocity,"turn:",turnSpeed, "Kd:",Kd
-            self.move(forwardVelocity,turnSpeed)
-
-        # elif self.firstStep:
-        #     self.firstStep = False
+            turn = -1 * signalKeeper * (math.pow(turnPar,2)*consignaFromSegmentation.a + turnPar*consignaFromSegmentation.b)
+            self.move(0.1, turn)
+            self.followArrowProcedureCounter += 1
+            if np.sum(arrow) < 50 or len(exits) > 1:
+                self.state = 'followLine'
         else:
+            if (np.sum(arrow) > 30) and self.followArrowObject['fixed'] is False:
+                date = datetime.datetime.now()
+                cv2.imwrite('imagenConsignaFlecha_' + date.strftime("%m_%d_%H_%M") + '.png', imageOnPaleta)
+                print 'consigna fixed at:', speed, self.followArrowObject['mostRotation']
+                self.followArrowObject['fixed'] = True
+                self.followArrowObject['speed'] = consignaFromSegmentation.calculateForwardSpeedFromTurn(self.followArrowObject['mostRotation'])
+                self.followArrowObject['rotation'] = self.followArrowObject['mostRotation']
+            if (self.followArrowObject['fixed'] is True):
+                self.move(self.followArrowObject['speed'], self.followArrowObject['rotation'])
+                if (len(exits) < 2):
+                    self.followArrowProcedureFinished = True
+                    self.followArrowObject['fixed'] = False
+                    self.followArrowObject['mostRotation'] = 0
 
-            # if we can't find the line we just go back, this isn't very smart (but definitely better than just stopping
-            turnSpeed = 0.8 if self.previousTurn > 0 else -0.8
-            if self.lastTurn != 0:
-                self.move(-0.2, -(self.lastTurn))
-                self.lastTurn = 0
-            else:
-                self.move(-0.2,turnSpeed)
-                self.lastTurn = turnSpeed
-
-        self.prevDistance = lineDistance
-
-    def transitionState(self, hasBall, ballDistance, ballPosition):
-
-        previousState = self.state
-        
-        if self.state is 'findBall':
-            if hasBall:
-                self.prevAngularDeviation = 20.0
-                # self.prevLinearDeviation = 10.0
-                self.state = 'followBall'
-
-        elif self.state is 'followBall':
-            if not hasBall:
-                self.state = 'findBall'
-
-
-        # if previousState != self.state:
-        #     print "new state:", self.state
-        #     self.printSummary(previousState, hasBall, ballDistance, ballPosition)
-            
-    def printSummary(self, previousState, hasBall, ballDistance, ballPosition):
-        print "Data for new state decision is", previousState, hasBall, ballDistance, ballPosition        
-    
-    def evaluateBall(self):
-        #print 'Sigo vivo'
-        ret, im = setup.capture.read()
-
-        imHSV = im[0::setup.shrinkFactor,0::setup.shrinkFactor,:]
-        imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
-        imHS = imHSV[:,:,(0,1)]
-
-        paleta = setup.paleta
-        segImg = setup.segImg
-
-        def predictRow(i):
-            segImg[i] = setup.segmenter.predict(imHS[i])[:, np.newaxis]
-
-        [predictRow(i) for i in range(imHS.shape[0])]
-        
-        showImage = np.zeros(segImg.shape, dtype='uint8')
-        showImage[segImg==0] = 1
-
-        # print showImage.shape
-        segImg1 = cv2.erode(showImage, None, dst=showImage, iterations=1) # don't touch this
-        # print showImage.shape
-        # print segImg1.shape
-        # segImg1 = cv2.dilate(segImg1, None, iterations=2)
-        # segImg1 = cv2.dilate(showImage, None, dst=showImage, iterations=2)
-
-        # whereIsObject = np.all(segImg1 == 2, axis=-1)
-        # print segImg1.shape
-        segImgLine = segImg1[int(self.imageHeight*0.8),:]
-        whereIsObject = np.all(segImgLine == 1, axis=-1)
-        # print whereIsObject
-        whereIsObjectPositions = np.where(whereIsObject==True)
-        # print whereIsObjectPositions[0]
-        
-        if whereIsObjectPositions[0].shape[0] != 0:
-            minx = np.min(whereIsObjectPositions)
-            maxx = np.max(whereIsObjectPositions)
-            self.size = maxx - minx
-            self.ballPosition['x'] = (maxx + minx) / 2.0
-            if self.size == 0:
-                self.size = 1.0
-            hasBall = True
-
-            dist0 = 20.0 # put fixed distance to the object here
-            # diameter = 6.8 # put size of object here
-            # paramF = 279.26
-            # paramF = 64.0
-
-            # dist = (paramF*diameter) / self.size
-
-            size0 = 26
-
-            dist = (size0*dist0)/self.size
-
-            # print "minmax", minx, maxx, dist
-
-
-            # print "paramF should be: ", (dist1*self.size)/diameter, "distance is: ", dist
-        else:
-            hasBall = False
-            self.size = 30.0
-            dist = -1.0
-
-        
-
-	    # print "imagen", segImg
-        # cv2.imshow("Segmentacion Euclid",cv2.cvtColor(segImg,cv2.COLOR_RGB2BGR))
-        # cv2.imshow("Segmentacion Euclid",showImage*255)
-        
-        
-        # # Record video
-        # outFrame = np.repeat((showImage*255)[:, :, np.newaxis], 3, axis=2)[:,:,:,0]
-        # outSeg.write(outFrame)
-	    
-        
-        
-        # print outFrame.shape
-        
-        #print segImg[0][0][0]
-    
-        # cv2.waitKey(1)
-
-        ballPosition = self.ballPosition
-
-
-        return hasBall, dist, ballPosition
-
-
-    def step(self):
-        arrow, line, imageOnPaleta = segmentLinesAndSymbolsFromImage.fetchImageAndSegment(setup)
-
-        speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup)
+    def followLine(self, arrow, line, entrance, exits, imageOnPaleta):
+        speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
         # print speed, rotation
         if speed != None and rotation != None:
             # print 'sending command', speed, rotation
@@ -306,11 +136,54 @@ class BrainTestNavigator(
             print(shapeName)
             cv2.putText(imageOnPaleta,shapeName,(10,160//setup.segmentedImageShrinkFactor), cv2.FONT_HERSHEY_SIMPLEX, 0.4,(255,255,255),1,cv2.LINE_AA)
 
-        # # Changes of state
-        # self.transitionState(arrow, line, shapeName, numberOfExits)
+    def transitionState(self, arrow, line, exits):
 
-        # # Follow state
-        # self.states[self.state]['action'](arrow, line, shapeName, numberOfExits)
+        previousState = self.state
+        
+        if self.state is 'followLine':
+            if len(exits) == 0:
+                self.state = 'findLine'
+                self.followArrowProcedureFinished = False
+            elif len(exits) > 1:
+                if np.sum(arrow) > 200:
+                    self.state = 'followArrow'
+
+        elif self.state is 'findLine':
+            if np.sum(line) > 150:
+                self.state = 'followLine'
+                self.followArrowProcedureFinished = False
+
+        elif self.state is 'followArrow':
+            if len(exits) == 1 and self.followArrowProcedureFinished == True:
+                self.state = 'followLine'
+                self.followArrowProcedureFinished = False
+                self.followArrowProcedureCounter = 0
+            elif len(exits) == 0 and self.followArrowProcedureFinished == True:
+                self.state = 'findLine'
+                self.followArrowProcedureFinished = False
+                self.followArrowProcedureCounter = 0
+
+        if previousState != self.state:
+            print "new state:", self.state
+            
+    def printSummary(self, previousState, hasBall, ballDistance, ballPosition):
+        print "Data for new state decision is", previousState, hasBall, ballDistance, ballPosition        
+    
+    def evaluateSituation(self):
+        arrow, line, imageOnPaleta = segmentLinesAndSymbolsFromImage.fetchImageAndSegment(setup)
+
+        entrance, exits = consignaFromSegmentation.calculateEntranceAndExits(line, self.previousData, setup)
+
+        return arrow, line, entrance, exits, imageOnPaleta
+
+    def step(self):
+        arrow, line, entrance, exits, imageOnPaleta = self.evaluateSituation()
+
+        # Changes of state
+        self.transitionState(arrow, line, exits)
+
+        # Follow state
+        self.states[self.state]['action'](arrow, line, entrance, exits, imageOnPaleta)
 
         if setup.drawAndRecordSchematicSegmentation:
             setup.schematicsVideoOutput.write(cv2.cvtColor(imageOnPaleta, cv2.COLOR_RGB2BGR))

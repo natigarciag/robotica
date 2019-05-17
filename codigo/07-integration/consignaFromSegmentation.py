@@ -303,9 +303,6 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousD
     if derivativeTerm > 0.3:
         turn = turn / (math.fabs(derivativeTerm) * Kd)
 
-    if np.abs(angle) > 45:
-        turn = signalKeeper * 10
-
     previousData['distance'] = distanceToExitPercentage
 
     speed = calculateForwardSpeedFromTurn(turn)
@@ -319,7 +316,7 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousD
     # print a,b,turn,distanceToExit,speed
 
     turn = -turn
-    print speed, turn
+    # print speed, turn
 
     return speed, turn
 
@@ -327,10 +324,8 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousD
 def calculateForwardSpeedFromTurn(turn):
     return -0.9*math.fabs(turn) + 1
 
-def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup):
-    salidas = getSalidas(line, setup)
+def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup, entrance, exits):
     centerOfArrow, vectorOfArrow, geometricCenterArrow, barycenterArrow = getArrowPosition(arrow, setup)
-    entrance, exits = decideEntrance(salidas, setup)
 
     if (len(exits) > 0):
         exitsArray = np.array(exits)
@@ -364,7 +359,7 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
         if (vector[0] > 0):
             angle = 180 - angle
 
-        print 'angle is:', angle
+        # print 'angle is:', angle
 
         speed, rotation = calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousData, setup)
     else:
@@ -436,3 +431,10 @@ def predictShapeIfShape(arrow, setup):
             return 'touches edges'
     else:
         return None
+
+
+def calculateEntranceAndExits(line, previousData, setup):
+    salidas = getSalidas(line, setup)
+    entrance, exits = decideEntrance(salidas, setup)
+
+    return entrance, exits
