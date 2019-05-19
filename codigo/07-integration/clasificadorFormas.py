@@ -8,8 +8,6 @@ import math
 import os
 import time
 from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.model_selection import LeaveOneOut
-# from sklearn.model_selection import KFold
 from sklearn.neighbors import DistanceMetric
 from scipy.spatial import distance
 import sklearn.neural_network as nn
@@ -22,6 +20,7 @@ import sklearn as sk
 
 
 symbolClassifier = sk.tree.DecisionTreeClassifier(criterion='entropy', min_samples_leaf=15)
+# symbolClassifier = nn.MLPClassifier(hidden_layer_sizes=(20,20,20,20,10), activation='logistic', alpha=0.001, momentum=0.1, verbose=True) #, early_stopping=True)
 # symbolClassifier = KNeighborsClassifier(n_neighbors=1)
 # symbolClassifier = sk.naive_bayes.GaussianNB()
 

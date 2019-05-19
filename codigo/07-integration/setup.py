@@ -67,7 +67,7 @@ capture = captureType.capture
 # clasificadorFormas.train(datos)
 # symbolClassifier = clasificadorFormas.symbolClassifier
 # dump(symbolClassifier, './iconsModel0Contrast.joblib',compress=True)
-symbolClassifier = load('./iconsModelPioneer.joblib')
+symbolClassifier = load('./iconsModel0Contrast.joblib')
 
 # Load segmenter
 # import datasetGenerator

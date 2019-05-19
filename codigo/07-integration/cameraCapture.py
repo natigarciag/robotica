@@ -2,8 +2,8 @@ import cv2
 import time
 
 # # capture = cv2.VideoCapture('./videos/video.mp4')
-# capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana1.mp4')
-capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
+capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana2.mp4')
+# capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
 # capture = cv2.VideoCapture('./videos/cruce4salidas.mp4')
 
 # for i in range(1,20):
@@ -26,8 +26,8 @@ capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
 # capture.set(cv2.CAP_PROP_CONTRAST, 10)
 # capture.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
 # capture.set(cv2.CAP_PROP_EXPOSURE, 3)
-# capture.set(cv2.CAP_PROP_BRIGHTNESS, 2)
-# capture.set(cv2.CAP_PROP_SATURATION, 2)
+# capture.set(cv2.CAP_PROP_BRIGHTNESS, 0)
+# capture.set(cv2.CAP_PROP_SATURATION, 200)
 # capture.set(cv2.CAP_PROP_CONTRAST, 200)
 
 # Que no funcionaron/no ayudaron:
