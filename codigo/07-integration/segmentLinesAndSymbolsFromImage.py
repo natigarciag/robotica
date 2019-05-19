@@ -7,7 +7,7 @@ def fetchImageAndSegment(setup):
     if setup.showRawImage:
         cv2.imshow('raw image', im[0::setup.rawImageShrinkFactor,0::setup.rawImageShrinkFactor,:])
 
-    setup.rawVideoOutput.write(cv2.cvtColor(im, cv2.COLOR_RGB2BGR))
+    setup.rawVideoOutput.write(im)
 
     # prepare segmentation
     imHSV = im[((setup.originalImageHeight - setup.imageHeight)*setup.shrinkFactor)::setup.shrinkFactor, 0::setup.shrinkFactor, :]
@@ -43,8 +43,7 @@ def fetchImageAndSegment(setup):
     line[setup.segImg == 0] = 1
     arrow[setup.segImg == 2] = 1
     arrow = cv2.erode(arrow, None, dst=arrow, iterations=1)
-
-    cv2.imshow('arrow', arrow * 255)
+    
     # cv2.imshow('reliability arrow', reliabilityMapSymbols * 255)
     # cv2.imshow('reliability floor', reliabilityMapFloor * 255)
     

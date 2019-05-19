@@ -82,7 +82,7 @@ paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')
 
 shrinkFactor = 1 # 2 funciona relativamente bien
 originalImageHeight = config.imageShape['height'] // shrinkFactor
-imageHeight = originalImageHeight #int(originalImageHeight*0.7)
+imageHeight = int(originalImageHeight*0.8)
 imageWidth = config.imageShape['width'] // shrinkFactor
 
 segImg = np.empty((imageHeight,
@@ -91,10 +91,10 @@ segImg = np.empty((imageHeight,
 
 if drawAndRecordSchematicSegmentation:
     date = datetime.datetime.now()
-    schematicsVideoOutput = cv2.VideoWriter('./schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
+    schematicsVideoOutput = cv2.VideoWriter('./capturedVideos/schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
     print schematicsVideoOutput
 
-rawVideoOutput = cv2.VideoWriter('./rawCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
+rawVideoOutput = cv2.VideoWriter('./capturedVideos/rawCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 15, (config.imageShape['width'], config.imageShape['height']))
     
 
 def touchingEdges(segmentation, threshold):

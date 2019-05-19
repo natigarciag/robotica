@@ -41,7 +41,7 @@ try:
         times.append(end - beg)
 
         if setup.showSegmentedImage:
-            cv2.imshow('segmented treated image', cv2.cvtColor(imageOnPaleta[0::setup.segmentedImageShrinkFactor,0::setup.segmentedImageShrinkFactor,:], cv2.COLOR_RGB2BGR))
+            cv2.imshow('segmented treated image', cv2.cvtColor(imageOnPaleta, cv2.COLOR_RGB2BGR))
         if setup.drawAndRecordSchematicSegmentation:
             setup.schematicsVideoOutput.write(cv2.cvtColor(imageOnPaleta, cv2.COLOR_RGB2BGR))
 
