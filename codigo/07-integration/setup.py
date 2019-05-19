@@ -89,6 +89,9 @@ segImg = np.empty((imageHeight,
                    imageWidth),
                   dtype='uint8')
 
+if not os.path.exists('./capturedVideos'):
+    os.makedirs('./capturedVideos')
+
 if drawAndRecordSchematicSegmentation:
     date = datetime.datetime.now()
     schematicsVideoOutput = cv2.VideoWriter('./capturedVideos/schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
