@@ -19,8 +19,13 @@ import sklearn.ensemble as ens
 from joblib import dump, load
 import datetime
 
+# 0 - line
+# 1 - floor
+# 2 - symbols
+# 3 - nothing - not used
 
-showRawImage = False
+
+showRawImage = True
 rawImageShrinkFactor = 1
 showSegmentedImage = True
 segmentedImageShrinkFactor = 1
@@ -35,9 +40,9 @@ import cameraCapture as captureType
 capture = captureType.capture
 
 
-# # Load symbol classifier
+# Load symbol classifier
 # datosCaballero = np.loadtxt('data_caballero.txt', delimiter=" ")
-# datosFlecha = np.loadtxt('data_flecha.txt', delimiter=" ")
+# # datosFlecha = np.loadtxt('data_flecha.txt', delimiter=" ")
 # datosCruz = np.loadtxt('data_cruz.txt', delimiter=" ")
 # datosCabina = np.loadtxt('data_cabina.txt', delimiter=" ")
 # datosEscalera = np.loadtxt('data_escalera.txt', delimiter=" ")
@@ -47,31 +52,31 @@ capture = captureType.capture
 # datosEscalera = np.c_[ datosEscalera, np.ones(len(datosEscalera)) ] 
 # datosCruz = np.c_[ datosCruz, np.full((len(datosCruz),1),2) ] 
 # datosCabina = np.c_[ datosCabina, np.full((len(datosCabina),1),3) ] 
-# datosFlecha = np.c_[ datosFlecha, np.full((len(datosFlecha),1),4) ] 
+# # datosFlecha = np.c_[ datosFlecha, np.full((len(datosFlecha),1),4) ] 
 
 
 # datos = np.concatenate((datosCaballero,datosCruz),axis=0)
 # datos = np.concatenate((datos,datosCruz),axis=0)
 # datos = np.concatenate((datos,datosCabina),axis=0)
 # datos = np.concatenate((datos,datosEscalera),axis=0)
-# datos = np.concatenate((datos,datosFlecha),axis=0)
+# # datos = np.concatenate((datos,datosFlecha),axis=0)
 
 # np.random.shuffle(datos)
 
 # import clasificadorFormas
 # clasificadorFormas.train(datos)
 # symbolClassifier = clasificadorFormas.symbolClassifier
-# dump(symbolClassifier, './iconsModel.joblib',compress=True)
+# dump(symbolClassifier, './iconsModel0Contrast.joblib',compress=True)
 symbolClassifier = load('./iconsModelPioneer.joblib')
 
-# # Load segmenter
+# Load segmenter
 # import datasetGenerator
 # segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
 # segmenter.train()
-# dump(segmenter, './segmentationModel' + config.datasetName + '.joblib',compress=True)
-segmenter = load('./segmentationModel' + config.datasetName + 'Pioneer.joblib')
+# dump(segmenter, './segmentationModel0Contrast.joblib',compress=True)
+segmenter = load('./segmentationModel0Contrast.joblib')
 
-namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina', 'flecha']
+namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina'] #, 'flecha']
 
 paleta = np.array([[0,0,255],[0,255,0],[255,0,0], [0,0,0]],dtype='uint8')  
 
@@ -88,6 +93,9 @@ if drawAndRecordSchematicSegmentation:
     date = datetime.datetime.now()
     schematicsVideoOutput = cv2.VideoWriter('./schematicsCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
     print schematicsVideoOutput
+
+rawVideoOutput = cv2.VideoWriter('./rawCapture_' + date.strftime("%m_%d_%H_%M") + '.mp4', cv2.VideoWriter_fourcc(*'XVID'), 5, (imageWidth, imageHeight))
+    
 
 def touchingEdges(segmentation, threshold):
     if (np.sum(segmentation[0]) > threshold or np.sum(segmentation[segmentation.shape[0]-1]) > threshold or np.sum(segmentation[:,0]) > threshold or np.sum(segmentation[:,segmentation.shape[1]-1]) > threshold):

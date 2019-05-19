@@ -1,8 +1,9 @@
-datasetName = 'highContrast'
+# datasetName = 'highContrast'
 # datasetName = 'Manzana'
+datasetName = '0Contrast'
 
 
-numberOfImages = 5
+numberOfImages = 10
 
 imageShape = {
     'width': 320,

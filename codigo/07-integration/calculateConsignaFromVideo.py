@@ -27,7 +27,9 @@ try:
 
         arrow, line, imageOnPaleta = segmentLinesAndSymbolsFromImage.fetchImageAndSegment(setup)
 
-        speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup)
+        entrance, exits = consignaFromSegmentation.calculateEntranceAndExits(line, previousData, setup)
+
+        speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup, entrance, exits)
 
         shapeName = consignaFromSegmentation.predictShapeIfShape(arrow, setup)
         if (not (shapeName == None or shapeName == 'touches edges' or shapeName == 'nothing')) and numberOfExits <= 1:

@@ -10,5 +10,6 @@ imageShape = {
     'height': 240
 }
 
-datasetName = 'Manzana'
+# datasetName = 'Manzana'
 # datasetName = 'highContrast'
+datasetName = '0Contrast'
