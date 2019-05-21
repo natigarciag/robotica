@@ -307,8 +307,8 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousD
 
     speed = calculateForwardSpeedFromTurn(turn)
 
-    if speed > 0.5:
-        speed = 0.5
+    if speed > 1:
+        speed = 1
     elif speed < 0:
         speed = 0
 

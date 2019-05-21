@@ -12,4 +12,5 @@ imageShape = {
 
 # datasetName = 'Manzana'
 # datasetName = 'highContrast'
-datasetName = '0Contrast'
+# datasetName = '0Contrast'
+datasetName = '0ContrastAlpera'

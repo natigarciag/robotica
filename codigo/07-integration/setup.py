@@ -25,10 +25,10 @@ import datetime
 # 3 - nothing - not used
 
 
-showRawImage = True
+showRawImage = False
 rawImageShrinkFactor = 1
 showSegmentedImage = True
-segmentedImageShrinkFactor = 1
+segmentedImageShrinkFactor = 4
 showArrowSegmentation = False
 arrowSegmentationShrinkFactor = 1
 showLineSegmentation = False
@@ -66,15 +66,15 @@ capture = captureType.capture
 # import clasificadorFormas
 # clasificadorFormas.train(datos)
 # symbolClassifier = clasificadorFormas.symbolClassifier
-# dump(symbolClassifier, './iconsModel0Contrast.joblib',compress=True)
-symbolClassifier = load('./iconsModel0Contrast.joblib')
+# dump(symbolClassifier, './iconsModel0ContrastPioneer.joblib',compress=True)
+symbolClassifier = load('./iconsModel0ContrastPioneer.joblib')
 
 # Load segmenter
 # import datasetGenerator
 # segmenter = clasificador.Clasificador(datasetGenerator.shapeD)
 # segmenter.train()
-# dump(segmenter, './segmentationModel0Contrast.joblib',compress=True)
-segmenter = load('./segmentationModel0Contrast.joblib')
+# dump(segmenter, './segmentationModel0ContrastAlpera.joblib',compress=True)
+segmenter = load('./segmentationModel0ContrastAlpera.joblib')
 
 namesOfTheShapes = ['servicio de caballero', 'escalera', 'cruz', 'cabina'] #, 'flecha']
 

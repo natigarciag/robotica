@@ -2,18 +2,20 @@ import cv2
 import time
 
 # # capture = cv2.VideoCapture('./videos/video.mp4')
-capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana2.mp4')
+# capture = cv2.VideoCapture('./videos/circuitoSalaAlManzana2.mp4')
+# capture = cv2.VideoCapture('./videos/alpera0Contrast.mp4')
 # capture = cv2.VideoCapture('./videos/circuito_EDIT_EDIT.mp4')
 # capture = cv2.VideoCapture('./videos/cruce4salidas.mp4')
+# capture = cv2.VideoCapture('./videos/rawCapture_05_20_15_46.mp4')
 
-# for i in range(1,20):
-#     capture = cv2.VideoCapture(i)
-#     status, im = capture.read()
-#     if (status == True):
-#         break
+for i in range(0,20):
+    capture = cv2.VideoCapture(i)
+    status, im = capture.read()
+    if (status == True):
+        break
 
-# capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-# capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
 
 

@@ -43,6 +43,8 @@ elif config.datasetName == 'Manzana':
     shapeD = (61983, 3) # good for Alpera
 elif config.datasetName == '0Contrast':
     shapeD = (96697, 3)
+elif config.datasetName == '0ContrastAlpera':
+    shapeD = (138644, 3)
 else:
     shapeD  = (20663, 3)
     
