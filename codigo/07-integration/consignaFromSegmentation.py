@@ -324,6 +324,7 @@ def calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousD
 def calculateForwardSpeedFromTurn(turn):
     return -0.9*math.fabs(turn) + 1
 
+decidedWithArrow = False
 def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup, entrance, exits):
     centerOfArrow, vectorOfArrow, geometricCenterArrow, barycenterArrow = getArrowPosition(arrow, setup)
 
@@ -332,9 +333,11 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
         if vectorOfArrow is not -1 and len(exits) > 1:
             # When there's an arrow and many exits, decide from the arrow
             selectedExit = decideExit(exitsArray, centerOfArrow, vectorOfArrow, imageOnPaleta, setup)
+            decidedWithArrow = True
         else:
             # When there are many exits and no arrows, choose the most central one
             selectedExit = exits[chooseIndexOfMostCentralExit(exitsArray, setup)]
+            decidedWithArrow = False
         
         
         if entrance[0] < selectedExit[0]:
@@ -364,6 +367,7 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
         speed, rotation = calculateConsignaFromExitDistance(distanceToExitPercentage, angle, previousData, setup)
     else:
         speed, rotation = None, None
+        decidedWithArrow = False
 
     if setup.showSegmentedImage or setup.drawAndRecordSchematicSegmentation:
         if (vectorOfArrow is not -1):

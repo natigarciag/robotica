@@ -101,11 +101,18 @@ class BrainTestNavigator(
         self.move(0.0, 0.0)
 
     def followArrow(self, arrow, line, entrance, exits, imageOnPaleta):
-        # speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
-        # if rotation != None and speed != None and (np.abs(rotation) > np.abs(self.followArrowObject['mostRotation']) and self.followArrowObject['fixed'] is False):
-        #     # print 'changing rotation to', rotation
-        #     if 
-        #     self.followArrowObject['mostRotation'] = rotation
+        speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
+        if rotation != None and speed != None and (np.abs(rotation) > np.abs(self.followArrowObject['mostRotation']) and self.followArrowObject['fixed'] is False and (not setup.touchingEdges(arrow,1))):
+            self.followArrowObject['mostRotation'] = (rotation + self.followArrowObject['mostRotation'])/2.0
+            print 'changing rotation to', self.followArrowObject['mostRotation']
+            
+
+        if consignaFromSegmentation.decidedWithArrow == True and self.followArrowObject['fixed'] is False:
+            self.followArrowObject['fixed'] = True
+            self.followArrowObject['mostRotation'] = rotation
+            
+        consignaFromSegmentation.decidedWithArrow = False
+
         
         positionsOfRedBef = np.where(arrow == 1)
         positionsOfRed = np.array([positionsOfRedBef[0],positionsOfRedBef[1]])
@@ -115,19 +122,22 @@ class BrainTestNavigator(
         if positionsOfRed.shape[1] > 0 and (((setup.touchingEdges(arrow, 1) or centralRedPosition[0] < 0.3 * setup.imageHeight)) and self.followArrowObject['fixed'] is False):
             # centralRedPosition[0] es el eje y de la imagen (numero de la linea). 1 es de columna
             centralHorizontalPoint = (centralRedPosition[1] - (setup.imageWidth/2))/setup.imageWidth
+            centralVerticalPosition = centralRedPosition[0] / setup.imageHeight
             
             signalKeeper = (1.0 if centralHorizontalPoint > 0 else (-1.0 if centralHorizontalPoint < 0 else 0.0))
             turnPar = (centralHorizontalPoint if centralHorizontalPoint > 0 else -centralHorizontalPoint)
 
             turn = -1 * signalKeeper * (math.pow(turnPar,2)*consignaFromSegmentation.a + turnPar*consignaFromSegmentation.b)
-            advancement = 0.05 if centralRedPosition[0] < 0.5 else -0.05
+            advancement = 0.05 if centralVerticalPosition < 0.5 else -0.05
 
             # self.move((-math.fabs(turn) + 1)/2 , turn)
             self.move(advancement , turn)
-            if centralHorizontalPoint < -0.3 and centralHorizontalPoint > 0.3 and centralRedPosition[0] > 0.3 and centralRedPosition[0] < 0.8:
-                self.followArrowProcedureFinished = True
-                speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
-                self.followArrowObject['mostRotation'] = rotation
+            if centralHorizontalPoint < -0.2 and centralHorizontalPoint > 0.2 and centralVerticalPosition > 0.4 and centralVerticalPosition < 0.6:
+                # self.followArrowProcedureFinished = True
+                # speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
+                # self.followArrowObject['mostRotation'] = rotation
+                self.followArrowObject['fixed'] = True
+                
         else:
             if (np.sum(arrow) > 50) and self.followArrowObject['fixed'] is False:
                 
@@ -137,16 +147,16 @@ class BrainTestNavigator(
                 self.followArrowObject['speed'] = consignaFromSegmentation.calculateForwardSpeedFromTurn(self.followArrowObject['mostRotation'])
                 self.followArrowObject['rotation'] = self.followArrowObject['mostRotation']
             
-            if (self.followArrowObject['fixed'] is True):
-                self.move(self.followArrowObject['speed'], self.followArrowObject['rotation'])
-                print 'move without finishing'
-                if (len(exits) < 2):
-                    print 'finished rotating'
-                    self.followArrowProcedureFinished = True
-                    self.followArrowObject['fixed'] = False
-                    self.followArrowObject['mostRotation'] = 0
-        
-                self.previousData['turn'] = self.followArrowObject['rotation']
+        if (self.followArrowObject['fixed'] is True):
+            self.move(self.followArrowObject['speed'], self.followArrowObject['mostRotation']*2)
+            print 'move without finishing'
+            if (len(exits) < 2):
+                print 'finished rotating'
+                self.followArrowProcedureFinished = True
+                self.followArrowObject['fixed'] = False
+                self.followArrowObject['mostRotation'] = 0
+    
+            self.previousData['turn'] = self.followArrowObject['mostRotation']
 
     def followLine(self, arrow, line, entrance, exits, imageOnPaleta):
         speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
