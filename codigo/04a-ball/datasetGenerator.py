@@ -20,12 +20,10 @@ import config
 
 # for i in range(hsExpanded.shape[0]):
 #     pixel = markedVector[i]
-#     if pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 255: # linea
+#     if pixel[0] == 0 and pixel[1] == 0 and pixel[2] == 255: # suelo azul
 #         pixelClass = 0
-#     elif pixel[0] == 0 and pixel[1] == 255 and pixel[2] == 0: # suelo
+#     elif pixel[0] == 0 and pixel[1] == 255 and pixel[2] == 0: # pelota verde
 #         pixelClass = 1
-#     elif pixel[0] == 255 and pixel[1] == 0 and pixel[2] == 0: # marca
-#         pixelClass = 2
 #     else:
 #         pixelClass = 3
         
@@ -33,13 +31,13 @@ import config
 
 # shapeD = hsExpanded[hsExpanded[:,2] != 3].shape
 # print shapeD
-# dataset = np.memmap('./datasets/dataset.driver', dtype=np.uint8, mode='w+', shape=shapeD)
+# dataset = np.memmap('./datasets/tennisBallDataset.driver', dtype=np.uint8, mode='w+', shape=shapeD)
 
 # dataset[:] = hsExpanded[hsExpanded[:,2] != 3]
 # dataset.flush()
 
 
-shapeD = (29115, 3)
+shapeD = (85600, 3)
 dataset = np.memmap('./datasets/tennisBallDataset.driver', dtype=np.uint8, mode='r', shape=shapeD)
 
 

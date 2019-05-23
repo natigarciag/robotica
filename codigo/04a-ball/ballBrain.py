@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import config
 import datasetGenerator
-import clasificador
+import setup
 #import imutils
 
 
@@ -16,55 +16,19 @@ import clasificador
 # Gonzalo Florez Arias - 150048
 # Salvador Gonzalez Gerpe - 150044
 
-shrinkFactor = 4
-segImg = np.empty((240/shrinkFactor, 320/shrinkFactor, 1), dtype='uint8')
-
-# Record video
-# outIm = cv2.VideoWriter('./videos/demoBolaImagen.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
-# outSeg = cv2.VideoWriter('./videos/demoBolaSegm.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320/4, 240/4))
-
-
 class BrainTestNavigator(
     Brain
     ):
 
-    NO_FORWARD = 0
-    SLOW_FORWARD = 0.1
-    MED_FORWARD = 0.5
-    FULL_FORWARD = 1.0
-
-    NO_TURN = 0
-    MED_LEFT = 0.5
-    HARD_LEFT = 1.0
-    MED_RIGHT = -0.5
-    HARD_RIGHT = -1.0
-    
-    NO_ERROR = 0
-
-    # def move(self,a,b):
-	#     pass
-    
     def setup(self):
         print 'setup'
-        self.capture = cv2.VideoCapture(0)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-        self.capture.set(cv2.CAP_PROP_SATURATION, 150)
-
-        self.clf = clasificador.Clasificador(datasetGenerator.shapeD)
-        self.clf.train()
+        self.capture = setup.capture
 
         self.targetDistance = 40.0
-        self.imageWidth = 320/4
-        self.targetX = self.imageWidth / 2
-        self.targetY = 120
+        self.targetX = (setup.imageWidth // setup.shrinkFactor) / 2
+        self.targetY = 120 // setup.shrinkFactor
         self.angularKp = 3.0
-        self.angularKd = 5.0
-
-        self.linearKp = 0.08
-        self.linearKd = 0.05
-
-        self.paleta = np.array([[0,0,0],[0,0,255],[0,255,0],[255,0,0]],dtype='uint8')
+        self.angularKd = 3.0#5.0
 
         self.state = 'findBall'
 
@@ -83,7 +47,8 @@ class BrainTestNavigator(
         self.move(0.0, 0.0)
 
     def followBall(self, hasBall, ballDistance, ballPosition):
-        angularDeviation = (ballPosition['x'] - self.targetX)/self.imageWidth
+        # print 'distancia es',ballDistance
+        angularDeviation = (ballPosition['x'] - self.targetX)/(setup.imageWidth // setup.shrinkFactor)
 
         linearDeviation = ballDistance - self.targetDistance
         # print angularDeviation
@@ -111,7 +76,10 @@ class BrainTestNavigator(
                 diffLinearDeviation = math.fabs(linearDeviation) - math.fabs(self.prevLinearDeviation)
                 if diffLinearDeviation == 0.0:
                     diffLinearDeviation = 5.0
-                speed = (self.linearKp*linearDeviation)/math.fabs(self.linearKd*diffLinearDeviation)
+
+                signalKeeper = 1 if linearDeviation > 0 else -1
+                speed = signalKeeper * math.fabs(linearDeviation)/math.fabs(diffLinearDeviation)
+                # print linearDeviation, diffLinearDeviation
                 # speed = (self.linearKp*linearDeviation)
                 # print speed
                 if (speed < -1.0): 
@@ -141,60 +109,14 @@ class BrainTestNavigator(
 
         self.move(speed, turn)
 
-    def followLine(self, hasBall, ballDistance, ballPosition):
-        if (hasLine):
-            Kp = 0.6*math.fabs(lineDistance)
-            Kd = (math.fabs(lineDistance) - math.fabs(self.prevDistance))
-            # print "Kd sale: ",Kd
-
-            # self.Ki = self.Ki + lineDistance
-            if Kd == 0:
-                turnSpeed = self.previousTurn
-            else:
-                turnSpeed =  5*((Kp * lineDistance)/((searchRange - math.fabs(Kd)) * searchRange))
-            
-            turnSpeed = min(turnSpeed, 1)
-
-            # The sharper the turn, the slower the robot advances forward
-            # forwardVelocity = min(((searchRange - math.fabs(Kd)) * searchRange) / 180, 1)
-            parNormalizacion = 100
-            parA = 3.5
-            parB = -2.8
-            # Kd = Kd*5
-            forwardVelocity = max(min(parA*((searchRange - 0.99*math.fabs(Kd)) * searchRange)**2 / (parNormalizacion**2) + parB*((searchRange - 0.99*math.fabs(Kd)) * searchRange) / (parNormalizacion), 1),0)
-
-            maxSpeed = 1.0 if (front > 1.0 and left > 0.5 and right > 0.5) else 0.2
-            if forwardVelocity > maxSpeed:
-                forwardVelocity = maxSpeed
-
-            self.previousTurn = turnSpeed
-
-            # print "vel:",forwardVelocity,"turn:",turnSpeed, "Kd:",Kd
-            self.move(forwardVelocity,turnSpeed)
-
-        # elif self.firstStep:
-        #     self.firstStep = False
-        else:
-
-            # if we can't find the line we just go back, this isn't very smart (but definitely better than just stopping
-            turnSpeed = 0.8 if self.previousTurn > 0 else -0.8
-            if self.lastTurn != 0:
-                self.move(-0.2, -(self.lastTurn))
-                self.lastTurn = 0
-            else:
-                self.move(-0.2,turnSpeed)
-                self.lastTurn = turnSpeed
-
-        self.prevDistance = lineDistance
-
     def transitionState(self, hasBall, ballDistance, ballPosition):
 
         previousState = self.state
         
         if self.state is 'findBall':
             if hasBall:
-                self.prevAngularDeviation = 20.0
-                self.prevLinearDeviation = 10.0
+                self.prevAngularDeviation = 0.0
+                self.prevLinearDeviation = 0.0
                 self.state = 'followBall'
 
         elif self.state is 'followBall':
@@ -202,9 +124,9 @@ class BrainTestNavigator(
                 self.state = 'findBall'
 
 
-        # if previousState != self.state:
-        #     print "new state:", self.state
-        #     self.printSummary(previousState, hasBall, ballDistance, ballPosition)
+        if previousState != self.state:
+            print "new state:", self.state
+            # self.printSummary(previousState, hasBall, ballDistance, ballPosition)
             
     def printSummary(self, previousState, hasBall, ballDistance, ballPosition):
         print "Data for new state decision is", previousState, hasBall, ballDistance, ballPosition        
@@ -215,6 +137,8 @@ class BrainTestNavigator(
 
         # # Record video
         # outIm.write(im)
+        if setup.drawAndRecordSchematicSegmentation:
+            setup.rawVideoOutput.write(im)
 
 
 	    # print ret
@@ -226,23 +150,36 @@ class BrainTestNavigator(
 
         # blurred = cv2.GaussianBlur(im, (7,7),0)
         # blurred = im
-        imHSV = im[0::shrinkFactor,0::shrinkFactor,:]
+        imHSV = im[0::setup.shrinkFactor,0::setup.shrinkFactor,:]
         imHSV = cv2.cvtColor(imHSV, cv2.COLOR_BGR2HSV)
         imHS = imHSV[:,:,(0,1)]
 
-        paleta = self.paleta  
+        paleta = setup.paleta  
 
         def predictRow(i):
+            reliabilityMapFullRow = setup.segmenter.clf.predict_proba(imHS[i])
+
+            setup.segImg[i] = np.argmax(reliabilityMapFullRow, axis=1)
+            
+            reliabilityMaskSymbols = (reliabilityMapFullRow[:,1] > 0.7).astype('uint8')
+
+            setup.segImg[i][setup.segImg[i] == 1] = reliabilityMaskSymbols[setup.segImg[i] == 1]
+
             # segImg[i] = paleta[self.clf.predict(imHS[i])]
-            segImg[i] = self.clf.predict(imHS[i])[:, np.newaxis]
+            # setup.segImg[i] = setup.segmenter.predict(imHS[i])
 
         [predictRow(i) for i in range(imHS.shape[0])]
         
-        showImage = np.zeros(segImg.shape, dtype='uint8')
-        showImage[segImg==2] = 1
+        showImage = np.zeros(setup.segImg.shape, dtype='uint8')
+        showImage[setup.segImg==1] = 1
 
         # print showImage.shape
         segImg1 = cv2.erode(showImage, None, dst=showImage, iterations=1) # don't touch this
+        # segImg1 = showImage
+        if setup.drawAndRecordSchematicSegmentation:
+            write = np.stack((segImg1,)*3, axis=-1)*255
+            # print 'shape of schematic video',write.shape, segImg1.shape, setup.segImg.shape
+            setup.schematicsVideoOutput.write(write)
         # print showImage.shape
         # print segImg1.shape
         # segImg1 = cv2.dilate(segImg1, None, iterations=2)
@@ -250,9 +187,10 @@ class BrainTestNavigator(
 
         # whereIsObject = np.all(segImg1 == 2, axis=-1)
         # print segImg1.shape
-        whereIsObject = np.all(segImg1 == 1, axis=-1)
+        # whereIsObject = np.all(segImg1 == 1, axis=-1)
         # print whereIsObject
-        whereIsObjectPositions = np.where(whereIsObject==True)
+        whereIsObjectPositions = np.where(segImg1==1)
+        # print whereIsObjectPositions
         
         if whereIsObjectPositions[1].shape[0] != 0:
             minx = np.min(whereIsObjectPositions[1])
@@ -270,7 +208,7 @@ class BrainTestNavigator(
 
             # dist = (paramF*diameter) / self.size
 
-            size0 = 26
+            size0 = 26*3
 
             dist = (size0*dist0)/self.size
 

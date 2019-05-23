@@ -30,8 +30,8 @@ class Clasificador():
 		self.y_test = Y
 		
 		# self.clf = NearestCentroid(metric='euclidean', shrink_threshold=None)
-		self.clf = nb.GaussianNB()
-		# self.clf = nn.MLPClassifier(hidden_layer_sizes=(3), activation='logistic', alpha=0.005)
+		# self.clf = nb.GaussianNB()
+		self.clf = nn.MLPClassifier(hidden_layer_sizes=(3), activation='logistic', alpha=0.005)
 		self.clf.fit(self.X_train, self.y_train)
 
 

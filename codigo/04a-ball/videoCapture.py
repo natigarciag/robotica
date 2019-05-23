@@ -1,12 +1,13 @@
 import numpy as np
 import cv2
+import os
+import cameraCapture
 
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-cap.set(cv2.CAP_PROP_SATURATION, 150)
+cap = cameraCapture.capture
 
-out = cv2.VideoWriter('./videos/bolaTenis2.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
+if not os.path.exists('./capturedVideos'):
+    os.makedirs('./capturedVideos')
+out = cv2.VideoWriter('./capturedVideos/bolaTenisAlpera_2019_05_23_17_17.mp4', cv2.VideoWriter_fourcc(*'XVID'), 25, (320, 240))
 
 # print cv2.CAP_PROP_EXPOSURE
 
