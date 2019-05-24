@@ -131,6 +131,7 @@ class BrainTestNavigator(
             advancement = 0.05 if centralVerticalPosition < 0.5 else -0.05
 
             # self.move((-math.fabs(turn) + 1)/2 , turn)
+            print 'advancement', advancement, turn
             self.move(advancement , turn)
             if centralHorizontalPoint < -0.2 and centralHorizontalPoint > 0.2 and centralVerticalPosition > 0.4 and centralVerticalPosition < 0.6:
                 # self.followArrowProcedureFinished = True
@@ -146,7 +147,12 @@ class BrainTestNavigator(
                 self.followArrowObject['fixed'] = True
                 self.followArrowObject['speed'] = consignaFromSegmentation.calculateForwardSpeedFromTurn(self.followArrowObject['mostRotation'])
                 self.followArrowObject['rotation'] = self.followArrowObject['mostRotation']
-            
+            else:
+                if(np.sum(arrow) < 10 and self.followArrowObject['fixed'] is False):
+                    print 'going a lot forward'
+                    self.move(0.3,0)
+                    self.followArrowProcedureFinished = True
+                    
         if (self.followArrowObject['fixed'] is True):
             self.move(self.followArrowObject['speed'], self.followArrowObject['mostRotation']*2)
             print 'move without finishing'
