@@ -340,12 +340,12 @@ def calculateConsignaFullProcess(line, arrow, imageOnPaleta, previousData, setup
             decidedWithArrow = False
         
         
-        if entrance[0] < selectedExit[0]:
-            # vector is most likely inverted
-            # print("inverted????", entrance, selectedExit)
-            vector = np.array([entrance[0] - selectedExit[0], entrance[1] - selectedExit[1]])
-        else:
-            vector = np.array([selectedExit[0] - entrance[0], selectedExit[1] - entrance[1]])
+        # if entrance[0] < selectedExit[0]:
+        #     # vector is most likely inverted
+        #     # print("inverted????", entrance, selectedExit)
+        #     vector = np.array([entrance[0] - selectedExit[0], entrance[1] - selectedExit[1]])
+        # else:
+        vector = np.array([selectedExit[0] - entrance[0], selectedExit[1] - entrance[1]])
 
         distanceToEntrance = entrance[1] - setup.imageWidth//2
 
