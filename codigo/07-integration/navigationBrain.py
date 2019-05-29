@@ -91,9 +91,9 @@ class BrainTestNavigator(
 
         
         if self.previousData['turn'] > 0:
-            self.move(-0.2, -turnSpeed*0.5)
-        else:
             self.move(-0.2, turnSpeed*0.5)
+        else:
+            self.move(-0.2, -turnSpeed*0.5)
 
         self.previousData['searchLineTurnDirectionCounter'] += 1
 
@@ -101,18 +101,18 @@ class BrainTestNavigator(
         self.move(0.0, 0.0)
 
     def followArrow(self, arrow, line, entrance, exits, imageOnPaleta):
-        print 'mostRotation is', self.followArrowObject['mostRotation']#, self.followArrowObject['rotation']
+        # print 'mostRotation is', self.followArrowObject['mostRotation']#, self.followArrowObject['rotation']
         speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
         if rotation != None and speed != None and (np.abs(rotation) > np.abs(self.followArrowObject['mostRotation']) and self.followArrowObject['fixed'] is False and (not setup.touchingEdges(arrow,1))):
             self.followArrowObject['mostRotation'] = (rotation + self.followArrowObject['mostRotation'])/2.0
-            print 'changing rotation to', self.followArrowObject['mostRotation']
+            # print 'changing rotation to', self.followArrowObject['mostRotation']
             
 
-        if consignaFromSegmentation.decidedWithArrow == True and self.followArrowObject['fixed'] is False:
-            print 'decidedWithArrow'
-            self.followArrowObject['fixed'] = True
-            self.followArrowObject['rotation'] = rotation
-            self.followArrowObject['mostRotation'] = rotation
+        # if consignaFromSegmentation.decidedWithArrow == True and self.followArrowObject['fixed'] is False:
+        #     # print 'decidedWithArrow'
+        #     self.followArrowObject['fixed'] = True
+        #     self.followArrowObject['rotation'] = rotation
+        #     self.followArrowObject['mostRotation'] = rotation
 
         
         positionsOfRedBef = np.where(arrow == 1)
@@ -132,13 +132,14 @@ class BrainTestNavigator(
             advancement = 0.15 if centralVerticalPosition < 0.5 else -0.15
 
             # self.move((-math.fabs(turn) + 1)/2 , turn)
-            print 'advancement', advancement, turn
-            self.move(advancement , turn)
+            # print 'advancement', advancement, turn
             if centralHorizontalPoint < -0.2 and centralHorizontalPoint > 0.2 and centralVerticalPosition > 0.4 and centralVerticalPosition < 0.6:
                 # self.followArrowProcedureFinished = True
                 # speed, rotation, numberOfExits = consignaFromSegmentation.calculateConsignaFullProcess(line, arrow, imageOnPaleta, self.previousData, setup, entrance, exits)
                 # self.followArrowObject['mostRotation'] = rotation
                 self.followArrowObject['fixed'] = True
+            else:
+                self.move(advancement , turn)
                 
         else:
             if (np.sum(arrow) > 50) and self.followArrowObject['fixed'] is False and not consignaFromSegmentation.decidedWithArrow:
@@ -148,15 +149,15 @@ class BrainTestNavigator(
                 self.followArrowObject['fixed'] = True
                 self.followArrowObject['speed'] = consignaFromSegmentation.calculateForwardSpeedFromTurn(self.followArrowObject['mostRotation'])
                 self.followArrowObject['rotation'] = self.followArrowObject['mostRotation']
-                print 'fixed at', self.followArrowObject['rotation']
+                # print 'fixed at', self.followArrowObject['rotation']
             else:
                 if(np.sum(arrow) < 10 and self.followArrowObject['fixed'] is False):
-                    print 'going a lot forward'
+                    # print 'going a lot forward'
                     self.move(0.3,0)
                     self.followArrowProcedureFinished = True
                     
         if (self.followArrowObject['fixed'] is True):
-            print 'fixed. Rotating by', self.followArrowObject['rotation']
+            # print 'fixed. Rotating by', self.followArrowObject['rotation']
             self.move(self.followArrowObject['speed'], self.followArrowObject['rotation']*2 if math.fabs(self.followArrowObject['rotation']) > 0.5 else self.followArrowObject['rotation']*3)
             if (len(exits) < 2):
                 self.followArrowProcedureFinished = True
@@ -205,8 +206,8 @@ class BrainTestNavigator(
             elif len(entrance) == 0 and self.followArrowProcedureFinished == True:
                 self.state = 'findLine'
 
-        if previousState != self.state:
-            print "new state:", self.state
+        # if previousState != self.state:
+        #     print "new state:", self.state
             
     def printSummary(self, previousState, hasBall, ballDistance, ballPosition):
         print "Data for new state decision is", previousState, hasBall, ballDistance, ballPosition        
